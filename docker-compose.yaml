@@ -1,0 +1,25 @@
+# TODO: https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-registry/
+services:
+  anvil:
+    image: ghcr.io/foundry-rs/foundry
+    command: anvil --host 0.0.0.0
+    ports:
+      - "8545:8545"
+
+  frontend:
+    build:
+      context: https://github.com/izcm/dmrkt-frontend.git
+    command: npm run start
+    ports:
+      - "3000:3000"
+    depends_on:
+      - anvil
+
+  # api:
+  #   build:
+  #     context: https://github.com/izcm/dmrkt-indexer.git
+  #   command: npm run start
+  #   ports:
+  #     - "5000:5000"
+  #   depends_on:
+  #     - anvil
