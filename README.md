@@ -1,12 +1,12 @@
 # dmrkt-demo
 
-> This is an _izcm_ demo showcases indexing, event flow, and real-time UI updates.
+> This _izcm_ demo showcases indexing, event flow, and real-time UI updates.
 
 ## From forking hell, to forking great!
 
 This repo builds all the necessary parts to run dmrkt, a minimal NFT marketplace, on your local machine 🚀👾
 
-In addition to starting all services and deploying contracts, the demo also includes a pipeline that bootstraps the local anvil fork with historical data, truely breathing life into dmrkt!
+In addition to starting all services and deploying contracts, the demo also includes a pipeline that bootstraps our Anvil fork with historical data, truly breathing life into dmrkt!
 
 Services:
 
