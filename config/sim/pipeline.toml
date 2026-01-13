@@ -1,0 +1,14 @@
+[1337]
+endpoint_url = "http://anvil:8545"
+
+[1337.address]
+weth = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+order_engine = "0xCEdbf9aED751D3c3e4115Dd3CbB933Ee1BBCb2a6"
+nft_c_0 = "0x685009Edc4Df588555d7e7Ed4854c450b423DD97"
+nft_c_1 = "0x87a97BC3a0EC7952F4F2C8d22eD5c0A56811fd10"
+
+[1337.uint]
+nft_c_count = 2
+pipeline_start_ts = 1765889459
+pipeline_end_ts = 1768308665
+fork_start_block = 24025279
