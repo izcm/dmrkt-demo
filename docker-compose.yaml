@@ -50,12 +50,12 @@ services:
       - anvil
       - mongo
 
-  frontend:
-    build:
-      context: https://github.com/izcm/dmrkt-frontend.git
-    ports:
-      - "3000:3000"
-    env_file: "./env.example/frontend.env"
-    depends_on:
-      - anvil
-      - indexer
+  # frontend:
+  #   build:
+  #     context: https://github.com/izcm/dmrkt-frontend.git
+  #   ports:
+  #     - "3000:3000"
+  #   env_file: "./env.example/frontend.env"
+  #   depends_on:
+  #     - anvil
+  #     - indexer
