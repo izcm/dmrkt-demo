@@ -12,7 +12,7 @@ services:
         "--fork-block-number",
         "${FORK_START_BLOCK}",
         "--chain-id",
-        "1337",
+        "31337",
         "--host",
         "0.0.0.0",
         "--port",
@@ -22,10 +22,10 @@ services:
     ports:
       - "8545:8545"
 
-  mongo:
-    image: mongo:7
-    ports:
-      - "27017:27017"
+  # mongo:
+  #   image: mongo:7
+  #   ports:
+  #     - "27017:27017"
 
   # DMRKT COMPONENTS
   sim:
@@ -33,22 +33,22 @@ services:
     #build:
     #  context: https://github.com/izcm/dmrkt-contracts.git
     volumes:
-      - ./config/sim/keys.json:/app/data/1337/keys.json:rw
+      - ./config/sim/mnemonic.example.json:/app/data/31337/mnemonic.json:rw
       - ./config/sim/pipeline.toml:/app/pipeline.toml:rw
       - ./env.example/sim.env:/app/.env:ro
     depends_on:
       - anvil
 
-  indexer:
-    image: indexer
-    #build:
-    #  context: https://github.com/izcm/dmrkt-indexer.git
-    ports:
-      - "5000:5000"
-    env_file: "./env.example/indexer.env"
-    depends_on:
-      - anvil
-      - mongo
+  # indexer:
+  #   image: indexer
+  #   #build:
+  #   #  context: https://github.com/izcm/dmrkt-indexer.git
+  #   ports:
+  #     - "5000:5000"
+  #   env_file: "./env.example/indexer.env"
+  #   depends_on:
+  #     - anvil
+  #     - mongo
 
   # frontend:
   #   build:

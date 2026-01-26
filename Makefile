@@ -25,6 +25,9 @@ demo-prepare:
 
 demo-reset: remove-containers remove-volumes
 
+# TODO: make these only remove the docker containers+ 
+# volumes connected to the repo
+
 remove-containers:
 	docker rm $(shell docker ps -a -q)
 

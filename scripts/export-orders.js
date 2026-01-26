@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 
 const server = "http://indexer:5000/api/orders";
 
-const inFile = "./data/1337/orders-sanitized.json";
+const inFile = "./data/31337/orders-sanitized.json";
 
 const raw = await readFile(inFile, "utf8");
 

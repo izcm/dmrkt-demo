@@ -1,0 +1,5 @@
+{
+  "chainId": 31337,
+  "note": "Deterministic dev-only private keys for Anvil. DO NOT USE ON REAL CHAINS.",
+  "mnemonic": "sleep glass purchase curve success chuckle town furnace tackle cinnamon rabbit morning"
+}
