@@ -22,16 +22,16 @@ services:
     ports:
       - "8545:8545"
 
-  # mongo:
-  #   image: mongo:7
-  #   ports:
-  #     - "27017:27017"
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
 
   # DMRKT COMPONENTS
   sim:
-    image: sim
-    #build:
-    #  context: https://github.com/izcm/dmrkt-contracts.git
+    #image: sim
+    build:
+      context: https://github.com/izcm/dmrkt-contracts.git
     volumes:
       - ./config/sim/mnemonic.example.json:/app/data/31337/mnemonic.json:rw
       - ./config/sim/pipeline.toml:/app/pipeline.toml:rw
@@ -39,16 +39,16 @@ services:
     depends_on:
       - anvil
 
-  # indexer:
-  #   image: indexer
-  #   #build:
-  #   #  context: https://github.com/izcm/dmrkt-indexer.git
-  #   ports:
-  #     - "5000:5000"
-  #   env_file: "./env.example/indexer.env"
-  #   depends_on:
-  #     - anvil
-  #     - mongo
+  indexer:
+    image: indexer
+    #build:
+    #  context: https://github.com/izcm/dmrkt-indexer.git
+    ports:
+      - "5000:5000"
+    env_file: "./env.example/indexer.env"
+    depends_on:
+      - anvil
+      - mongo
 
   # frontend:
   #   build:

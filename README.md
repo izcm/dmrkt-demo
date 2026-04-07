@@ -3,7 +3,7 @@
 **_Breathing life into web3 demos_**
 
 > An _izcm_ demo showcasing an end-to-end marketplace that warps time on a local Anvil fork to generate realistic and deterministic historical on-chain data.  
-> Great for devs looking to level up their dev environments — and for those who want a fun, practical how-to on Web3 demos.
+> Great for devs looking to level up their dev environments — and for those who want an interactive introduction to full-stack Web3 development.
 
 This repo builds all the necessary parts to run dmrkt, a minimal NFT marketplace, on your local machine 🚀👾
 
@@ -27,3 +27,22 @@ Anvil &rarr; Contracts &rarr; Events &rarr; Indexer &rarr; DB &rarr; Socket &rar
 
 Run with:
 docker compose up --build
+
+```
+foundry scripts
+        │
+        ▼
+   anvil fork
+        │
+        ▼
+   contracts emit events
+        │
+        ▼
+     indexer
+        │
+        ▼
+      API
+        │
+        ▼
+     frontend
+```
