@@ -1,4 +1,6 @@
 # TODO: https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-registry/
+name: dmrkt
+
 services:
   # INFRA
 
@@ -6,19 +8,14 @@ services:
     image: ghcr.io/foundry-rs/foundry
     entrypoint: ["anvil"]
     command:
-      [
-        "--fork-url",
-        "https://eth-mainnet.g.alchemy.com/v2/${API_KEY}",
-        "--fork-block-number",
-        "${FORK_START_BLOCK}",
-        "--chain-id",
-        "31337",
-        "--host",
-        "0.0.0.0",
-        "--port",
-        "8545",
-        "--silent",
-      ]
+      - --fork-url=https://eth-mainnet.g.alchemy.com/v2/${API_KEY}
+      - --chain-id=31337
+      - --host=0.0.0.0
+      - --port=8545
+      - --fork-block-number=${FORK_START_BLOCK}
+      - --mnemonic=${PHRASE}
+      - --accounts=10
+      - --silent
     ports:
       - "8545:8545"
 
@@ -29,9 +26,9 @@ services:
 
   # DMRKT COMPONENTS
   sim:
-    #image: sim
-    build:
-      context: https://github.com/izcm/dmrkt-contracts.git
+    image: sim
+    # build:
+    #   context: https://github.com/izcm/dmrkt-contracts.git
     volumes:
       - ./config/sim/mnemonic.example.json:/app/data/31337/mnemonic.json:rw
       - ./config/sim/pipeline.toml:/app/pipeline.toml:rw
@@ -44,18 +41,46 @@ services:
     #build:
     #  context: https://github.com/izcm/dmrkt-indexer.git
     ports:
-      - "5000:5000"
+      - "5000:5000" # http
+      - "5001:5001" # websocket
     env_file: "./env.example/indexer.env"
     depends_on:
       - anvil
       - mongo
 
-  # frontend:
-  #   build:
-  #     context: https://github.com/izcm/dmrkt-frontend.git
-  #   ports:
-  #     - "3000:3000"
-  #   env_file: "./env.example/frontend.env"
-  #   depends_on:
-  #     - anvil
-  #     - indexer
+  frontend:
+    image: frontend
+    # build:
+    #   context: https://github.com/izcm/dmrkt-frontend.git
+    ports:
+      - "3000:3000"
+    env_file: "./env.example/frontend.env"
+    depends_on:
+      - anvil
+      - indexer
+
+  setup:
+    image: ghcr.io/foundry-rs/foundry
+    profiles: ["setup"]
+    working_dir: /app
+    user: root
+    entrypoint:
+      - bash
+      - -c
+      - |
+        apt-get update -qq &&
+        apt-get install -y -qq jq &&
+        bash /app/scripts/pipeline-window.sh $$SECONDS_AGO &&
+        bash /app/scripts/determine-dmrkt-address.sh
+    environment:
+      - MNEMONIC_JSON=/app/config/sim/mnemonic.example.json
+      - TOML=/app/config/sim/pipeline.toml
+      - RPC_URL=${RPC_URL}
+      - SECONDS_AGO=${SECONDS_AGO}
+    volumes:
+      - ./scripts/pipeline-window.sh:/app/scripts/pipeline-window.sh:ro
+      - ./scripts/determine-dmrkt-address.sh:/app/scripts/determine-dmrkt-address.sh:ro
+      - ./config/sim/mnemonic.example.json:/app/config/sim/mnemonic.example.json:ro
+      - ./config/sim/pipeline.toml:/app/config/sim/pipeline.toml:rw
+      - ./env.example:/app/env.example:rw
+      - ./.env:/app/.env:rw

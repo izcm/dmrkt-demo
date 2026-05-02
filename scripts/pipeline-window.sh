@@ -9,8 +9,6 @@ set -euo pipefail
 : "${RPC_URL:?🚨 RPC_URL not set}"
 : "${TOML:?🚨 TOML not set}"
 
-ENV_PATH=".env"
-
 SECONDS_AGO=${1:?🚨 pass seconds ago}
 PIPELINE_END_TS=${2:-$(date +%s)}
 
@@ -27,7 +25,7 @@ PIPELINE_START_TS=$(echo "$BLOCK_JSON" | jq -r .timestamp)
 
 # === write TOML ===
 
-TMP_FILE=$(mktemp)
+TMP_TOML=$(mktemp)
 
 awk -v start="$PIPELINE_START_TS" \
     -v end="$PIPELINE_END_TS" \
@@ -66,15 +64,17 @@ awk -v start="$PIPELINE_START_TS" \
             print "fork_start_block = " block
         }
     }
-' "$TOML" > "$TMP_FILE"
+' "$TOML" > "$TMP_TOML"
 
-mv "$TMP_FILE" "$TOML"
+cp "$TMP_TOML" "$TOML"
 
 # === write to .env files ===
 
 for ENV_FILE in .env env.example/indexer.env; do
     if [ -f "$ENV_FILE" ] && grep -q '^FORK_START_BLOCK=' "$ENV_FILE"; then
-        sed -i "s/^FORK_START_BLOCK=.*/FORK_START_BLOCK=$FORK_START_BLOCK/" "$ENV_FILE"
+        TMP_ENV=$(mktemp)
+        sed "s/^FORK_START_BLOCK=.*/FORK_START_BLOCK=$FORK_START_BLOCK/" "$ENV_FILE" > "$TMP_ENV"
+        cp "$TMP_ENV" "$ENV_FILE" && rm -f "$TMP_ENV"
     else
         echo "FORK_START_BLOCK=$FORK_START_BLOCK" >> "$ENV_FILE"
     fi

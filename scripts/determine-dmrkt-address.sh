@@ -47,6 +47,21 @@ MARKETPLACE_ADDR=$(cast compute-address "$DEPLOYER_ADDR" --nonce "$NONCE" | awk 
 
 echo "addr   → $MARKETPLACE_ADDR"
 
+write_or_replace() {
+    local file="$1" key="$2" value="$3"
+    if [ -f "$file" ] && grep -q "^${key}=" "$file"; then
+        sed -i "s|^${key}=.*|${key}=${value}|" "$file"
+    else
+        echo "${key}=${value}" >> "$file"
+    fi
+}
+
+write_or_replace env.example/frontend.env NEXT_PUBLIC_MARKETPLACE_ADDR "$MARKETPLACE_ADDR"
+echo "Wrote NEXT_PUBLIC_MARKETPLACE_ADDR → env.example/frontend.env"
+
+write_or_replace env.example/indexer.env MARKETPLACE_CONTRACT_ADDR "$MARKETPLACE_ADDR"
+echo "Wrote MARKETPLACE_CONTRACT_ADDR → env.example/indexer.env"
+
 echo ""
 echo "✅ done"
 sep
