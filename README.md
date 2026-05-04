@@ -1,6 +1,4 @@
-# From forking hell, to forking great!
-
-**_Breathing life into web3 demos_**
+# an NFT playground
 
 This repo builds all the necessary parts to run dmrkt, a minimal NFT marketplace, on your local machine 👾
 
@@ -15,7 +13,11 @@ The first obstacle was how I'd populate the demo with data, as it would obviousl
 While experimenting with Foundry scripting, I realized I could control the economy 😈 — locally.
 So instead of seeding data, I simulated it.
 
-The foundry pipeline is the heart of this demo, and likely the most exciting to check out if your focus is web3.
+The foundry pipeline is the heart of this demo, and likely the more exciting to check out if your focus is web3.
+
+## Future improvements
+
+Halfway in the project, the demo moved into gaming theme, where each NFT represents a gaming object. I've realized ERC721 protocol doesn't really fit as cleanly as ERC1155 would. If you're foncused about why, then do a search for
 
 ## Services
 

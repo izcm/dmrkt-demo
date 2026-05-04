@@ -1,3 +1,8 @@
+# NOTE: include .env snapshots vars at parse time; demo-up reloads .env.runtime
+
+# these will get stale when setup scripts in demo-prepare runs
+# demo-up must set the vars to these fresh values before running docker compose
+# done by: set -a && . ./.env.runtime && set +a
 include .env
 export
 
@@ -13,7 +18,6 @@ export PROJECT_ROOT TOML MNEMONIC_JSON RPC_URL PHRASE
 EPOCH_COUNT ?= 4
 EPOCH_SIZE ?= 604800 # seconds (7 days)
 
-# target start block seconds ago
 SECONDS_AGO = $(shell expr $(EPOCH_COUNT) \* $(EPOCH_SIZE))
 
 # ───────────────────────────────────────────────
@@ -21,7 +25,6 @@ SECONDS_AGO = $(shell expr $(EPOCH_COUNT) \* $(EPOCH_SIZE))
 # ───────────────────────────────────────────────
 
 dapp: demo-prepare demo-up
-
 
 # ───────────────────────────────────────────────
 #   PREP
@@ -31,6 +34,7 @@ demo-prepare:
 	@echo "🔢 Finding block number and timestamps..."
 	@docker compose --profile setup run --rm setup
 
+# runs setup locally instead of in container (requires foundry)
 demo-prepare-local:
 	@echo "🔢 Finding block number and timestamps..."
 	@bash ./scripts/pipeline-window.sh $(SECONDS_AGO)
@@ -41,11 +45,13 @@ demo-prepare-local:
 #   START
 # ───────────────────────────────────────────────
 
+# reload .env.runtime so compose sees values written by demo-prepare, not the stale snapshot
 demo-up:
 	@PHRASE=$$(jq -r .mnemonic $(MNEMONIC_JSON)) && \
 	cp .env .env.runtime && \
-	echo "PHRASE=$$PHRASE" >> .env.runtime && \
-	docker compose --env-file .env.runtime up
+	echo "PHRASE=\"$$PHRASE\"" >> .env.runtime
+	@set -a && . ./.env.runtime && set +a && \
+	docker compose up
 
 # ───────────────────────────────────────────────
 #   RESET
