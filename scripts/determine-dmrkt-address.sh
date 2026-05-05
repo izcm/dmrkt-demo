@@ -7,7 +7,7 @@ set -euo pipefail
 
 sep() { echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"; }
 
-PHRASE=$(jq -r .mnemonic "$MNEMONIC_JSON")
+PHRASE=$(awk -F'"' '{ if ($2=="mnemonic") print $4 }' "$MNEMONIC_JSON")
 
 sep
 echo "🔐 Deployer"

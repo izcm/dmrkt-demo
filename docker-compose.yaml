@@ -27,8 +27,8 @@ services:
   # DMRKT COMPONENTS
   sim:
     image: sim
-    # build:
-    #   context: https://github.com/izcm/dmrkt-contracts.git
+    build:
+      context: https://github.com/izcm/dmrkt-contracts.git
     volumes:
       - ./config/sim/mnemonic.example.json:/app/data/31337/mnemonic.json:rw
       - ./config/sim/pipeline.toml:/app/pipeline.toml:rw
@@ -68,8 +68,6 @@ services:
       - bash
       - -c
       - |
-        apt-get update -qq &&
-        apt-get install -y -qq jq &&
         bash /app/scripts/pipeline-window.sh $$SECONDS_AGO &&
         bash /app/scripts/determine-dmrkt-address.sh
     environment:

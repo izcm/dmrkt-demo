@@ -14,14 +14,12 @@ PIPELINE_END_TS=${2:-$(date +%s)}
 
 # === get timestamps ===
 
-LATEST_TS=$(cast block latest --json --rpc-url "$RPC_URL" | jq -r .timestamp)
+LATEST_TS=$(cast block latest -f timestamp --rpc-url "$RPC_URL")
 
 TARGET_TS=$((LATEST_TS - SECONDS_AGO))
 
 FORK_START_BLOCK=$(cast find-block "$TARGET_TS" --rpc-url "$RPC_URL")
-
-BLOCK_JSON=$(cast block "$FORK_START_BLOCK" --json --rpc-url "$RPC_URL")
-PIPELINE_START_TS=$(echo "$BLOCK_JSON" | jq -r .timestamp)
+PIPELINE_START_TS=$(cast block "$FORK_START_BLOCK" -f timestamp --rpc-url "$RPC_URL")
 
 # === write TOML ===
 
