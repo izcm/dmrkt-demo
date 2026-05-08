@@ -34,7 +34,7 @@ sep
 
 NONCE=$(cast nonce "$DEPLOYER_ADDR" \
   --block "$AT_BLOCK" \
-  --rpc-url "$RPC_URL")
+  --rpc-url "$MAINNET_RPC")
 
 echo "nonce  → $NONCE"
 

@@ -9,10 +9,9 @@ export
 PROJECT_ROOT  := $(shell pwd)
 TOML          := $(PROJECT_ROOT)/config/sim/pipeline.toml
 MNEMONIC_JSON := $(PROJECT_ROOT)/config/sim/mnemonic.example.json
-RPC_URL       := $(SNAP_RPC_URL)/$(API_KEY)
 PHRASE        := $(shell jq -r .mnemonic $(MNEMONIC_JSON))
 
-export PROJECT_ROOT TOML MNEMONIC_JSON RPC_URL PHRASE
+export PROJECT_ROOT TOML MNEMONIC_JSON PHRASE
 
 # pipeline window
 EPOCH_COUNT ?= 4

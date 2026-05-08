@@ -29,7 +29,7 @@ A fully populated NFT marketplace running at `localhost:3000` — with historica
 | [sim][contracts]                           | —                  | Deploys contracts + runs Foundry scripts to generate events |
 | [indexer][indexer]                         | `5000` / `5001 ws` | Backend API + WebSocket                                     |
 | [frontend][frontend]                       | `3000`             | Marketplace UI                                              |
-| mongo                                      | `27017`            | Data store                                                  |
+| mongo                                      | `27017`            | DB                                                          |
 
 [contracts]: https://github.com/izcm/dmrkt-contracts
 [indexer]: https://github.com/izcm/dmrkt-indexer
@@ -55,7 +55,7 @@ mainnet RPC
 
 The fork block is computed fresh each run so the historical window always ends near the current date.
 
-**READMEs for the other repos are not yet written**, but will be within the next week or so.
+> READMEs for the other repos are not yet written, but will be within the next week or so.
 
 ---
 
@@ -69,8 +69,8 @@ The fork block is computed fresh each run so the historical window always ends n
 ### Run
 
 ```bash
-# 1. Add your Alchemy API key to .env
-#    API_KEY=your_key_here
+# 1. Set your mainnet RPC URL in .env
+#    MAINNET_RPC=https://...
 
 # 2. Start everything
 make dapp
@@ -83,17 +83,50 @@ make dapp
 
 The first run takes a few minutes while Anvil syncs the fork and sim replays events. The frontend is ready when `localhost:3000` loads with marketplace data, with the initial page showing pipeline progress.
 
-This would be a great time for a coffee break ☕
+Great time for a coffee break ☕
 
 > If you have [Foundry](https://book.getfoundry.sh/) installed locally, you can run `make demo-prepare-local && make demo-up` instead to skip the setup container.
 
-### Connect your wallet
+### Connect as a demo participant
 
-All participants in any marketplace activity are derived from the same mnemonic
+The Foundry pipeline bootstraps a set of accounts from the same mnemonic: [mnemonic.json](./config/sim/mnemonic.example.json).
+We’ll call these accounts the **_demo participants_** 👾
+
+You don’t _have_ to connect as a demo participant, but it makes the demo much more fun since the pipeline already generated active orders and completed sales for these accounts. They're also bootstrapped with tons of WETH.
+
+> This walkthrough uses Brave, but any browser with profile support works similarly.
+
+1. Create a fresh browser profile and install the MetaMask extension.
+
+2. Open MetaMask and select:
+
+   `I have an existing wallet` → `Import using Secret Recovery Phrase`
+
+3. Paste the mnemonic from [mnemonic.json](./config/sim/mnemonic.example.json).
+
+4. Choose a password.
+
+`Account 1` will be the first address derived from the mnemonic.
+
+To connect as another demo participant, click `+ Add account`. Each added account derives the next address from the same mnemonic.
+
+> To display WETH balance in MetaMask, import the tokens at address: `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2`
+
+Once the demo is running, visit [dmrkt](http://localhost:3000) and connect with MetaMask. Go to the `feed` tab and search for:
+
+```txt
+maker=me status=active
+```
+
+If everything worked correctly, you should see your active orders along with the `Cancel order` action button.
+
+> After having a look around, check out [What to improve](#what-to-improve) for some interesting points on ERC721 vs ERC1155.
 
 ---
 
-## Reset
+## Operational
+
+### Reset
 
 ```bash
 make demo-reset
@@ -101,11 +134,9 @@ make demo-reset
 
 Tears down all containers and volumes. Safe to re-run `make dapp` after.
 
-## Troubleshooting
+### Troubleshooting
 
-**`RPC_URL not set`** — check that `API_KEY` is set in `.env`
-
-**Contract address errors** — re-run `make demo-prepare` to rederive the address from the current fork block
+**`RPC_URL not set`** — check that `MAINNET_RPC` is set in `.env`
 
 **Indexer not syncing** — `FORK_START_BLOCK` mismatch; re-run `make demo-prepare`. Should not happen if you're using `make dapp` as entrypoint.
 

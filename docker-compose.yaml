@@ -8,7 +8,7 @@ services:
     image: ghcr.io/foundry-rs/foundry
     entrypoint: ["anvil"]
     command:
-      - --fork-url=https://eth-mainnet.g.alchemy.com/v2/${API_KEY}
+      - --fork-url=${MAINNET_RPC}
       - --chain-id=31337
       - --host=0.0.0.0
       - --port=8545
@@ -27,8 +27,8 @@ services:
   # DMRKT COMPONENTS
   sim:
     image: sim
-    build:
-      context: https://github.com/izcm/dmrkt-contracts.git
+    # build:
+    #   context: https://github.com/izcm/dmrkt-contracts.git
     volumes:
       - ./config/sim/mnemonic.example.json:/app/data/31337/mnemonic.json:rw
       - ./config/sim/pipeline.toml:/app/pipeline.toml:rw
@@ -73,7 +73,7 @@ services:
     environment:
       - MNEMONIC_JSON=/app/config/sim/mnemonic.example.json
       - TOML=/app/config/sim/pipeline.toml
-      - RPC_URL=${RPC_URL}
+      - MAINNET_RPC=${MAINNET_RPC}
       - SECONDS_AGO=${SECONDS_AGO}
     volumes:
       - ./scripts/pipeline-window.sh:/app/scripts/pipeline-window.sh:ro

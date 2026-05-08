@@ -6,7 +6,7 @@ set -euo pipefail
 
 # === config ===
 
-: "${RPC_URL:?🚨 RPC_URL not set}"
+: "${MAINNET_RPC:?🚨 MAINNET_RPC not set}"
 : "${TOML:?🚨 TOML not set}"
 
 SECONDS_AGO=${1:?🚨 pass seconds ago}
@@ -14,12 +14,12 @@ PIPELINE_END_TS=${2:-$(date +%s)}
 
 # === get timestamps ===
 
-LATEST_TS=$(cast block latest -f timestamp --rpc-url "$RPC_URL")
+LATEST_TS=$(cast block latest -f timestamp --rpc-url "$MAINNET_RPC")
 
 TARGET_TS=$((LATEST_TS - SECONDS_AGO))
 
-FORK_START_BLOCK=$(cast find-block "$TARGET_TS" --rpc-url "$RPC_URL")
-PIPELINE_START_TS=$(cast block "$FORK_START_BLOCK" -f timestamp --rpc-url "$RPC_URL")
+FORK_START_BLOCK=$(cast find-block "$TARGET_TS" --rpc-url "$MAINNET_RPC")
+PIPELINE_START_TS=$(cast block "$FORK_START_BLOCK" -f timestamp --rpc-url "$MAINNET_RPC")
 
 # === write TOML ===
 
