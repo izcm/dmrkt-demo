@@ -44,8 +44,16 @@ demo-prepare-local:
 #   START
 # ───────────────────────────────────────────────
 
+check-ports:
+	@for port in 8545 3000; do \
+		if lsof -i :$$port -t >/dev/null 2>&1; then \
+			echo "❌ Port $$port is in use. Try 'make demo-reset'. If problem persists: kill $$(lsof -i :$$port -t)"; \
+			exit 1; \
+		fi \
+	done
+
 # reload .env.runtime so compose sees values written by demo-prepare, not the stale snapshot
-demo-up:
+demo-up: check-ports
 	@PHRASE=$$(jq -r .mnemonic $(MNEMONIC_JSON)) && \
 	cp .env .env.runtime && \
 	echo "PHRASE=\"$$PHRASE\"" >> .env.runtime

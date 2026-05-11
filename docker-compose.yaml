@@ -30,11 +30,11 @@ services:
     # build:
     #   context: https://github.com/izcm/dmrkt-contracts.git
     volumes:
-      - ./config/sim/mnemonic.example.json:/app/data/31337/mnemonic.json:rw
-      - ./config/sim/pipeline.toml:/app/pipeline.toml:rw
-      - ./env.example/sim.env:/app/.env:ro
-    depends_on:
-      - anvil
+      - ./config/sim/mnemonic.example.json:/app/devtools/data/31337/mnemonic.json:rw
+      - ./config/sim/pipeline.toml:/app/devtools/pipeline.toml:rw
+      - ./env.example/sim.env:/app/devtools/.env:ro
+    # depends_on:
+    #   - anvil
 
   indexer:
     image: indexer
@@ -68,13 +68,12 @@ services:
       - bash
       - -c
       - |
-        bash /app/scripts/pipeline-window.sh $$SECONDS_AGO &&
+        bash /app/scripts/pipeline-window.sh $SECONDS_AGO &&
         bash /app/scripts/determine-dmrkt-address.sh
     environment:
       - MNEMONIC_JSON=/app/config/sim/mnemonic.example.json
       - TOML=/app/config/sim/pipeline.toml
       - MAINNET_RPC=${MAINNET_RPC}
-      - SECONDS_AGO=${SECONDS_AGO}
     volumes:
       - ./scripts/pipeline-window.sh:/app/scripts/pipeline-window.sh:ro
       - ./scripts/determine-dmrkt-address.sh:/app/scripts/determine-dmrkt-address.sh:ro

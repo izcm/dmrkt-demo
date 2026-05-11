@@ -1,6 +1,6 @@
 # dmrkt playground
 
-On my journey to learn web3, having written an tested some contracts, I wanted to make a realistic marketplace demo.
+On my journey to learn web3, having written and tested some contracts, I wanted to make a realistic marketplace demo.
 
 The first obstacle was how to populate the demo with data, as it wasn't as straightforward as seeding a regular DB.
 
@@ -9,11 +9,7 @@ So instead of seeding data, I simulated it.
 
 The foundry pipeline is the heart of this demo, and likely the more exciting thing to check out if your focus is web3.
 
-- [How it works](#how-it-works)
-- [Getting started](#getting-started)
-- [Reset](#reset)
-- [Troubleshooting](#troubleshooting)
-- [What to improve](#what-to-improve)
+**Contents** — [How it works](#how-it-works) · [Getting started](#getting-started) · [Reset](#reset) · [Troubleshooting](#troubleshooting) · [What to improve](#what-to-improve)
 
 ---
 
@@ -55,7 +51,7 @@ mainnet RPC
 
 The fork block is computed fresh each run so the historical window always ends near the current date.
 
-> READMEs for the other repos are not yet written, but will be within the next week or so.
+> READMEs for the frontend and indexer are not yet written, but will be within the next week or so.
 
 ---
 
@@ -120,13 +116,11 @@ maker=me status=active
 
 If everything worked correctly, you should see your active orders along with the `Cancel order` action button.
 
-> After having a look around, check out [What to improve](#what-to-improve) for some interesting points on ERC721 vs ERC1155.
+After having a look around, check out [What to improve](#what-to-improve) for some interesting points on ERC721 vs ERC1155.
 
 ---
 
-## Operational
-
-### Reset
+## Reset
 
 ```bash
 make demo-reset
@@ -134,11 +128,17 @@ make demo-reset
 
 Tears down all containers and volumes. Safe to re-run `make dapp` after.
 
-### Troubleshooting
+---
 
-**`RPC_URL not set`** — check that `MAINNET_RPC` is set in `.env`
+## Troubleshooting
+
+**Frontend shows tx as pending forever** — likely a another process is already occupying port 8545. MetaMask runs in your browser, not in Docker, so it always connects to `localhost:8545` — if something else is sitting on that port, transactions will silently go nowhere. `check-ports` should warn about this, but if it were to happen anyway: run `make demo-reset` and `lsof -i :8545`, kill whatever is on that port, then run `make dapp`.
+
+**No frontend at `localhost:3000`** — likely another process is occupying port 3000. `check-ports` should warn about this, but if it were to happen anyway: run `make demo-reset` and `lsof -i :3000`, kill whatever is on that port, then run `make dapp`.
 
 **Indexer not syncing** — `FORK_START_BLOCK` mismatch; re-run `make demo-prepare`. Should not happen if you're using `make dapp` as entrypoint.
+
+**`RPC_URL not set`** — check that `MAINNET_RPC` is set in `.env`
 
 ---
 
