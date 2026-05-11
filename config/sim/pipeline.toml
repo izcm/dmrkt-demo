@@ -7,7 +7,7 @@ order_engine = "0x8fA71914948544c60E3379064567DcF0E6564d27"
 nft_c_0 = "0xA5f104F8f78d5ba9AEC4a383c0927337Fd4E997B"
 
 [31337.uint]
-pipeline_start_ts = 1776108599
-pipeline_end_ts = 1778527805
-fork_start_block = 24872952
+pipeline_start_ts = 1776113243
+pipeline_end_ts = 1778532449
+fork_start_block = 24873339
 nft_c_count = 1
