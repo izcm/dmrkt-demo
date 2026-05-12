@@ -19,13 +19,13 @@ A fully populated NFT marketplace running at `localhost:3000` — with historica
 
 ### Services
 
-| Service                                    | Port               | Role                                                        |
-| ------------------------------------------ | ------------------ | ----------------------------------------------------------- |
-| [anvil](https://book.getfoundry.sh/anvil/) | `8545`             | Local EVM fork of Ethereum mainnet                          |
-| [sim][contracts]                           | —                  | Deploys contracts + runs Foundry scripts to generate events |
-| [indexer][indexer]                         | `5000` / `5001 ws` | Backend API + WebSocket                                     |
-| [frontend][frontend]                       | `3000`             | Marketplace UI                                              |
-| mongo                                      | `27017`            | DB                                                          |
+| Service              | Port               | Role                                                        |
+| -------------------- | ------------------ | ----------------------------------------------------------- |
+| anvil                | `8545`             | Local EVM fork of Ethereum mainnet                          |
+| [sim][contracts]     | —                  | Deploys contracts + runs Foundry scripts to generate events |
+| [indexer][indexer]   | `5000` / `5001 ws` | Backend API + WebSocket                                     |
+| [frontend][frontend] | `3000`             | Marketplace UI                                              |
+| mongo                | `27017`            | DB                                                          |
 
 [contracts]: https://github.com/izcm/dmrkt-contracts
 [indexer]: https://github.com/izcm/dmrkt-indexer
@@ -66,7 +66,7 @@ Set `MAINNET_RPC` in `.env` to the full provider URL, API key included:
 MAINNET_RPC=https://eth-mainnet.g.alchemy.com/v2/YOUR_KEY
 ```
 
-`.env` is the only file you need to edit. Everything else is either pre-populated or auto-generated:
+**❕ imp** `MAINNET_RPC `is the variable you need to edit. Everything else is either pre-populated or auto-generated:
 
 | File                         | What it is                                                                                     |
 | ---------------------------- | ---------------------------------------------------------------------------------------------- |
@@ -87,13 +87,15 @@ make dapp
 
 Head to `localhost:3000` to watch the pipeline progress; once the trades are done, it'll link you to the marketplace.
 
-The first run pulls and builds images before anything starts. After that, give it another 5–10 minutes to fork mainnet and replay the full event history. Coffee break? ☕
+The first run pulls and builds images before anything starts. After that, give it another 5–10 minutes to fork mainnet and replay the full event history.
+
+Coffee break? ☕
 
 > If you have [Foundry](https://book.getfoundry.sh/) installed locally, you can run `make demo-prepare-local && make demo-up` instead to skip the setup container.
 
 ### Connect as a demo participant
 
-The Foundry pipeline bootstraps a set of accounts from the same mnemonic: [mnemonic.json](./config/sim/mnemonic.example.json).
+The Foundry pipeline bootstraps a set of accounts from the same [mnemonic](./config/sim/mnemonic.example.json).
 We’ll call these accounts the **_demo participants_** 👾
 
 You don’t _have_ to connect as a demo participant, but it makes the demo much more fun since the pipeline already generated active orders and completed sales for these accounts. They're also bootstrapped with tons of WETH.
@@ -140,6 +142,8 @@ Tears down all containers and volumes. Safe to re-run `make dapp` after.
 
 ## Troubleshooting
 
+> Always run `make demo-reset` before troubleshooting.
+
 **Frontend shows tx as pending forever** — likely a another process is already occupying port 8545. MetaMask runs in your browser, not in Docker, so it always connects to `localhost:8545` — if something else is sitting on that port, transactions will silently go nowhere. `check-ports` should warn about this, but if it were to happen anyway: run `make demo-reset` and `lsof -i :8545`, kill whatever is on that port, then run `make dapp`.
 
 **No frontend at `localhost:3000`** — likely another process is occupying port 3000. `check-ports` should warn about this, but if it were to happen anyway: run `make demo-reset` and `lsof -i :3000`, kill whatever is on that port, then run `make dapp`.
@@ -170,6 +174,6 @@ The marketplace contract would also need to be extended to support ERC-1155 orde
 
 ---
 
-If you spot something interesting I overlooked, or just want to talk web3 infra, feel free to reach out.
+If you have encounter any issues, or just want to talk web3 infra, feel free to reach out.
 
 **See ya 👾**
