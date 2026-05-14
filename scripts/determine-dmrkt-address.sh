@@ -56,8 +56,8 @@ write_or_replace() {
     fi
 }
 
-write_or_replace env.example/frontend.env NEXT_PUBLIC_MARKETPLACE_ADDR "$MARKETPLACE_ADDR"
-echo "Wrote NEXT_PUBLIC_MARKETPLACE_ADDR → env.example/frontend.env"
+write_or_replace .env.runtime MARKETPLACE_ADDR "$MARKETPLACE_ADDR"
+echo "Wrote MARKETPLACE_ADDR → .env.runtime"
 
 write_or_replace env.example/indexer.env MARKETPLACE_CONTRACT_ADDR "$MARKETPLACE_ADDR"
 echo "Wrote MARKETPLACE_CONTRACT_ADDR → env.example/indexer.env"

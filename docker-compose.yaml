@@ -2,8 +2,8 @@
 name: dmrkt
 
 services:
-  # INFRA
 
+  # INFRA
   anvil:
     image: ghcr.io/foundry-rs/foundry
     entrypoint: ["anvil"]
@@ -27,19 +27,19 @@ services:
   # DMRKT COMPONENTS
   sim:
     image: sim
-    # build:
-    #   context: https://github.com/izcm/dmrkt-contracts.git
+    build:
+      context: https://github.com/izcm/dmrkt-contracts.git
     volumes:
       - ./config/sim/mnemonic.example.json:/app/devtools/data/31337/mnemonic.json:rw
       - ./config/sim/pipeline.toml:/app/devtools/pipeline.toml:rw
       - ./env.example/sim.env:/app/devtools/.env:ro
-    # depends_on:
-    #   - anvil
+    depends_on:
+      - anvil
 
   indexer:
     image: indexer
-    #build:
-    #  context: https://github.com/izcm/dmrkt-indexer.git
+    build:
+     context: https://github.com/izcm/dmrkt-indexer.git
     ports:
       - "5000:5000" # http
       - "5001:5001" # websocket
@@ -50,11 +50,15 @@ services:
 
   frontend:
     image: frontend
-    # build:
-    #   context: https://github.com/izcm/dmrkt-frontend.git
+    build:
+      context: https://github.com/izcm/dmrkt-frontend.git
+      args:
+        NEXT_PUBLIC_ANVIL_RPC_URL: http://localhost:8545
+        NEXT_PUBLIC_MARKETPLACE_ADDR: ${MARKETPLACE_ADDR}
+        NEXT_PUBLIC_INDEXER_API: http://localhost:5000
+        NEXT_PUBLIC_INDEXER_WS: ws://localhost:5001
     ports:
       - "3000:3000"
-    env_file: "./env.example/frontend.env"
     depends_on:
       - anvil
       - indexer
@@ -80,4 +84,4 @@ services:
       - ./config/sim/mnemonic.example.json:/app/config/sim/mnemonic.example.json:ro
       - ./config/sim/pipeline.toml:/app/config/sim/pipeline.toml:rw
       - ./env.example:/app/env.example:rw
-      - ./.env:/app/.env:rw
+      - ./.env.runtime:/app/.env.runtime:rw

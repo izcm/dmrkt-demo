@@ -68,7 +68,7 @@ cp "$TMP_TOML" "$TOML"
 
 # === write to .env files ===
 
-for ENV_FILE in .env env.example/indexer.env; do
+for ENV_FILE in .env.runtime env.example/indexer.env; do
     if [ -f "$ENV_FILE" ] && grep -q '^FORK_START_BLOCK=' "$ENV_FILE"; then
         TMP_ENV=$(mktemp)
         sed "s/^FORK_START_BLOCK=.*/FORK_START_BLOCK=$FORK_START_BLOCK/" "$ENV_FILE" > "$TMP_ENV"
