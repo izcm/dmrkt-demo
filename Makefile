@@ -29,14 +29,19 @@ dapp: demo-prepare demo-up
 #   PREP
 # ───────────────────────────────────────────────
 
-# computes context + sopies mainnet rpc to runtime .env
-demo-prepare:
-	@cp .env .env.runtime 
-	@echo "🔢 Finding block number and timestamps..."
-	@docker compose --profile setup run --rm setup
+# ensure static addresses and key phrase / mnemonic
+ensure-sim-config:
+	bash ./scripts/ensure-mnemonic.sh
+	bash ./scripts/ensure-statics.sh
 
-# runs setup locally instead of in container (requires foundry)
-demo-prepare-local:
+# compute context
+demo-prepare: ensure-sim-config
+	@cp .env .env.runtime
+	@echo "🔢 Finding block number and timestamps..."
+	docker compose --profile setup run --rm setup
+
+# run setup locally instead of in container (requires foundry)
+demo-prepare-local: ensure-sim-config
 	@echo "🔢 Finding block number and timestamps..."
 	@bash ./scripts/pipeline-window.sh $(SECONDS_AGO)
 	@bash ./scripts/determine-dmrkt-address.sh
@@ -47,7 +52,7 @@ demo-prepare-local:
 # ───────────────────────────────────────────────
 
 check-ports:
-	@for port in 8545 3000 5000 50001; do \
+	@for port in 8545 3000 5000 5001; do \
 		if lsof -i :$$port -t >/dev/null 2>&1; then \
 			echo "❌ Port $$port is in use. Try 'make demo-reset'. If problem persists: kill $$(lsof -i :$$port -t)"; \
 			exit 1; \

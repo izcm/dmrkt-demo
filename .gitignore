@@ -5,3 +5,5 @@ notes/
 .env.runtime
 
 # nb: all other .example envs are intentionally included
+
+config/sim/mnemonic.example.json

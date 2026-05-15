@@ -7,7 +7,11 @@ set -euo pipefail
 
 sep() { echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"; }
 
-PHRASE=$(awk -F'"' '{ if ($2=="mnemonic") print $4 }' "$MNEMONIC_JSON")
+PHRASE=$(grep '"mnemonic"' config/sim/mnemonic.example.json | cut -d'"' -f4)
+if [ -z "$PHRASE" ]; then
+    echo "Error: no mnemonic found in config/sim/mnemonic.example.json"
+    exit 1
+fi
 
 sep
 echo "🔐 Deployer"
