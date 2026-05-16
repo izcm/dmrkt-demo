@@ -41,7 +41,10 @@ services:
     ports:
       - "5000:5000" # http
       - "5001:5001" # websocket
-    env_file: "./env.example/indexer.env"
+    env_file: "./env.example/indexer.env" # static env
+    environment: # dynamic env
+      - FORK_START_BLOCK=${FORK_START_BLOCK}
+      - MARKETPLACE_ADDR=${MARKETPLACE_ADDR}
     depends_on:
       - anvil
       - mongo
@@ -51,10 +54,11 @@ services:
     build:
       context: https://github.com/izcm/dmrkt-frontend.git
       args:
-        NEXT_PUBLIC_ANVIL_RPC_URL: http://localhost:8545
         NEXT_PUBLIC_MARKETPLACE_ADDR: ${MARKETPLACE_ADDR}
+        NEXT_PUBLIC_ANVIL_RPC_URL: http://localhost:8545
         NEXT_PUBLIC_INDEXER_API: http://localhost:5000
         NEXT_PUBLIC_INDEXER_WS: ws://localhost:5001
+    env_file: "./env.example/frontend.env"
     ports:
       - "3000:3000"
     depends_on:
@@ -65,7 +69,6 @@ services:
     image: ghcr.io/foundry-rs/foundry
     profiles: ["setup"]
     working_dir: /app
-    user: root
     entrypoint:
       - bash
       - -c
@@ -78,10 +81,15 @@ services:
       - TOML=/app/config/sim/pipeline.toml
       - MAINNET_RPC=${MAINNET_RPC}
     volumes:
+      # scripts
       - ./scripts/ensure-mnemonic.sh:/app/scripts/ensure-mnemonic.sh:ro
       - ./scripts/pipeline-window.sh:/app/scripts/pipeline-window.sh:ro
       - ./scripts/determine-dmrkt-address.sh:/app/scripts/determine-dmrkt-address.sh:ro
+
+      # fork context config
       - ./config/sim/mnemonic.example.json:/app/config/sim/mnemonic.example.json:rw
       - ./config/sim/pipeline.toml:/app/config/sim/pipeline.toml:rw
+
+      # environment files
       - ./env.example:/app/env.example:rw
       - ./.env.runtime:/app/.env.runtime:rw

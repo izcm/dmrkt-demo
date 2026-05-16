@@ -9,7 +9,6 @@ export
 PROJECT_ROOT  := $(shell pwd)
 TOML          := $(PROJECT_ROOT)/config/sim/pipeline.toml
 MNEMONIC_JSON := $(PROJECT_ROOT)/config/sim/mnemonic.example.json
-PHRASE        := $(shell jq -r .mnemonic $(MNEMONIC_JSON))
 
 export PROJECT_ROOT TOML MNEMONIC_JSON PHRASE
 
@@ -29,9 +28,11 @@ dapp: demo-prepare demo-up
 #   PREP
 # ───────────────────────────────────────────────
 
-# ensure static addresses and key phrase / mnemonic
+# ensure static addresses
+# NOTE: touch/mkdir so the demo runner owns the files, not root via docker
 ensure-sim-config:
-	bash ./scripts/ensure-mnemonic.sh
+	@mkdir -p config/sim
+	@touch config/sim/mnemonic.example.json
 	bash ./scripts/ensure-statics.sh
 
 # compute context
@@ -42,6 +43,7 @@ demo-prepare: ensure-sim-config
 
 # run setup locally instead of in container (requires foundry)
 demo-prepare-local: ensure-sim-config
+	@cp .env .env.runtime
 	@echo "🔢 Finding block number and timestamps..."
 	@bash ./scripts/pipeline-window.sh $(SECONDS_AGO)
 	@bash ./scripts/determine-dmrkt-address.sh
@@ -53,7 +55,7 @@ demo-prepare-local: ensure-sim-config
 
 check-ports:
 	@for port in 8545 3000 5000 5001; do \
-		if lsof -i :$$port -t >/dev/null 2>&1; then \
+			if ss -l sport = :$$port 2>/dev/null | grep -q LISTEN; then \
 			echo "❌ Port $$port is in use. Try 'make demo-reset'. If problem persists: kill $$(lsof -i :$$port -t)"; \
 			exit 1; \
 		fi \
@@ -64,7 +66,7 @@ demo-up: check-ports
 	@PHRASE=$$(jq -r .mnemonic $(MNEMONIC_JSON)) && \
 	echo "PHRASE=\"$$PHRASE\"" >> .env.runtime
 	@set -a && . ./.env.runtime && set +a && \
-	docker compose up
+	docker compose up --build
 
 # ───────────────────────────────────────────────
 #   RESET

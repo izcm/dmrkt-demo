@@ -85,25 +85,28 @@ make dapp
 - **prepare** — computes fork start-block and pipeline window, derives the marketplace contract address deterministically, and writes the results to toml and env files; runs inside a container so no local tooling is needed
 - **up** — starts the services via Docker Compose
 
+> If you have [Foundry](https://book.getfoundry.sh/) installed locally, you can run `make demo-prepare-local && make demo-up` instead to skip the setup container.
+
 Visit `localhost:3000` to watch the pipeline progress; once the trades are done, it'll link you to the marketplace.
 
 The first run pulls and builds images before anything starts. After that, give it another 5–10 minutes to fork mainnet and replay the full event history.
 
 Coffee break? ☕
 
-> ⚠️ The pipeline may appear to freeze — this is normal. The demo collection doesn't support batch mint, so 500 tokens = 500 transactions. Expect a ~90 second pause mid-run.
-
-> If you have [Foundry](https://book.getfoundry.sh/) installed locally, you can run `make demo-prepare-local && make demo-up` instead to skip the setup container.
+> ⚠️ At a specific stage the pipeline might appear to freeze — it hasn't. The demo nft-collection doesn't support batch mint, so 500 tokens = 500 transactions. Expect a ~90 second pause mid-run.
 
 ### Connect as a demo participant
 
-The Foundry pipeline bootstraps a set of accounts a provided mnemonic, blablablablabla.
+The pipeline revolves around a fixed set of accounts — bootstrapped with ETH, WETH, and NFTs, and used as actors for every trade and listing.
 
-We'll call them the **_demo participants_** 👨‍💻
+We'll call them the demo participants 👨‍💻
+We recommend connecting as one — you'll see your orders and trade history the moment you log in.
 
-You don’t _have_ to connect as a demo participant, but it makes the demo much more fun since the pipeline already generated active orders and completed sales for these accounts. They're also bootstrapped with tons of WETH.
+The next steps assume config/sim/mnemonic.example.json exists — run make dapp first if it doesn't.
 
-> This walkthrough uses Brave, but any browser with profile support works similarly.
+> Your mnemonic is generated once and persists across runs; it only changes if the file is deleted or becomes invalid.
+
+In your browser:
 
 1. Create a fresh browser profile and install the MetaMask extension.
 
@@ -119,9 +122,9 @@ You don’t _have_ to connect as a demo participant, but it makes the demo much 
 
 To connect as another demo participant, click `+ Add account`. Each added account derives the next address from the same mnemonic.
 
-> To display WETH balance in MetaMask, import the tokens at address: `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2`
+> Optional: if you want to see your WETH balance in MetaMask, you can add the anvil network to your wallet and import the token at `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2` — not required for the demo.
 
-Once the demo is running, visit [d | mrkt](http://localhost:3000) and connect with MetaMask. Go to the `feed` tab and search for:
+Once the demo is running, visit `localhost:3000` and connect with MetaMask. Go to the `feed` tab and search for:
 
 ```txt
 maker=me status=active
@@ -177,7 +180,7 @@ After the demo has finished loading, open the `explore` tab and search for:
 trait.type=sword trait.rarity=common trait.color=blood_red trait.element=none
 ```
 
-This returns ~30 identical-looking swords. In the current ERC-721 collection, each of these is a separate NFT, meaning every sword is treated as a unique asset with a unique `tokenId`. It works, but doesn’t fit our use case well.
+This returns multiple identical-looking swords. In the current ERC-721 collection, each of these is a separate NFT, meaning every sword is treated as a unique asset with a unique `tokenId`. It works, but doesn’t fit our use case well.
 
 With ERC-1155, instead of one `tokenId` per sword, a single id could represent the item (e.g. "Common Blood Red Sword"), with balances tracked per user; `balanceOf(owner, id)`.
 

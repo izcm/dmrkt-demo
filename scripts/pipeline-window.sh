@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Computes fork block + timestamps, writes them into TOML ([31337.uint])
-# and syncs FORK_START_BLOCK into .env
+# and syncs FORK_START_BLOCK into .env.runtime
 
 # === config ===
 
@@ -66,18 +66,17 @@ awk -v start="$PIPELINE_START_TS" \
 
 cp "$TMP_TOML" "$TOML"
 
-# === write to .env files ===
+# === write to .env.runtime ===
 
-for ENV_FILE in .env.runtime env.example/indexer.env; do
-    if [ -f "$ENV_FILE" ] && grep -q '^FORK_START_BLOCK=' "$ENV_FILE"; then
-        TMP_ENV=$(mktemp)
-        sed "s/^FORK_START_BLOCK=.*/FORK_START_BLOCK=$FORK_START_BLOCK/" "$ENV_FILE" > "$TMP_ENV"
-        cp "$TMP_ENV" "$ENV_FILE" && rm -f "$TMP_ENV"
-    else
-        echo "FORK_START_BLOCK=$FORK_START_BLOCK" >> "$ENV_FILE"
-    fi
-    echo "Wrote $ENV_FILE"
-done
+ENV_FILE=.env.runtime
+if [ -f "$ENV_FILE" ] && grep -q '^FORK_START_BLOCK=' "$ENV_FILE"; then
+    TMP_ENV=$(mktemp)
+    sed "s/^FORK_START_BLOCK=.*/FORK_START_BLOCK=$FORK_START_BLOCK/" "$ENV_FILE" > "$TMP_ENV"
+    cp "$TMP_ENV" "$ENV_FILE" && rm -f "$TMP_ENV"
+else
+    echo "FORK_START_BLOCK=$FORK_START_BLOCK" >> "$ENV_FILE"
+fi
+echo "Wrote $ENV_FILE"
 
 # === logs ===
 
