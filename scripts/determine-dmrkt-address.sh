@@ -5,12 +5,15 @@ set -euo pipefail
 # 2. Read deployer's nonce at the fork block
 # 3. Compute marketplace contract address from deployer address + nonce
 
+MNEMONIC_JSON="${MNEMONIC_JSON:-config/sim/mnemonic.example.json}"
+ENV_RUNTIME="${ENV_RUNTIME:-.env.runtime}"
+
 sep() { echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"; }
 
 # read mnemonic
-PHRASE=$(grep '"mnemonic"' config/sim/mnemonic.example.json | cut -d'"' -f4)
+PHRASE=$(awk -F'"' '/mnemonic/{print $4}' "$MNEMONIC_JSON" 2>/dev/null)
 if [ -z "$PHRASE" ]; then
-    echo "Error: no mnemonic found in config/sim/mnemonic.example.json"
+    echo "Error: no mnemonic found in $MNEMONIC_JSON"
     exit 1
 fi
 
@@ -66,7 +69,7 @@ write_or_replace() {
     fi
 }
 
-write_or_replace .env.runtime MARKETPLACE_ADDR "$MARKETPLACE_ADDR"
+write_or_replace "$ENV_RUNTIME" MARKETPLACE_ADDR "$MARKETPLACE_ADDR"
 echo "Wrote MARKETPLACE_ADDR → .env.runtime"
 
 echo ""

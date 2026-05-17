@@ -6,6 +6,9 @@ set -euo pipefail
 
 # === config ===
 
+MNEMONIC_JSON="${MNEMONIC_JSON:-config/sim/mnemonic.example.json}"
+ENV_RUNTIME="${ENV_RUNTIME:-.env.runtime}"
+
 : "${MAINNET_RPC:?🚨 MAINNET_RPC not set}"
 : "${TOML:?🚨 TOML not set}"
 
@@ -68,15 +71,13 @@ cp "$TMP_TOML" "$TOML"
 
 # === write to .env.runtime ===
 
-ENV_FILE=.env.runtime
-if [ -f "$ENV_FILE" ] && grep -q '^FORK_START_BLOCK=' "$ENV_FILE"; then
+if [ -f "$ENV_RUNTIME" ] && grep -q '^FORK_START_BLOCK=' "$ENV_RUNTIME"; then
     TMP_ENV=$(mktemp)
-    sed "s/^FORK_START_BLOCK=.*/FORK_START_BLOCK=$FORK_START_BLOCK/" "$ENV_FILE" > "$TMP_ENV"
-    cp "$TMP_ENV" "$ENV_FILE" && rm -f "$TMP_ENV"
+    sed "s/^FORK_START_BLOCK=.*/FORK_START_BLOCK=$FORK_START_BLOCK/" "$ENV_RUNTIME" > "$TMP_ENV"
+    cp "$TMP_ENV" "$ENV_RUNTIME" && rm -f "$TMP_ENV"
 else
-    echo "FORK_START_BLOCK=$FORK_START_BLOCK" >> "$ENV_FILE"
+    echo "FORK_START_BLOCK=$FORK_START_BLOCK" >> "$ENV_RUNTIME"
 fi
-echo "Wrote $ENV_FILE"
 
 # === logs ===
 

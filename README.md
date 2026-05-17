@@ -51,6 +51,10 @@ mainnet RPC
 
 > READMEs for the frontend and indexer are not yet written, but will be within the next week or so.
 
+### Logs
+
+Sim broadcast logs are written to `out/broadcast/` — a bind-mounted directory owned by the user who ran `make dapp`.
+
 ---
 
 ## Getting started
@@ -89,7 +93,7 @@ make dapp
 
 Visit `localhost:3000` to watch the pipeline progress; once the trades are done, it'll link you to the marketplace.
 
-The first run pulls and builds images before anything starts. After that, give it another 5–10 minutes to fork mainnet and replay the full event history.
+The first run pulls and builds images before anything starts. After that, expect another 5–10 minutes while the pipeline forks mainnet and replays the event history.
 
 Coffee break? ☕
 
@@ -158,9 +162,11 @@ docker login ghcr.io
 
 Use your GitHub username and the token as the password.
 
+**DNS error / failed to lookup address during setup** — the RPC call sometimes fails. Just run `make dapp` again.
+
 **No frontend at `localhost:3000`** — likely another process is occupying port 3000. `check-ports` should warn about this, but if it were to happen: run `make demo-reset` and `lsof -i :3000`, kill whatever is on that port, then run `make dapp`.
 
-**Frontend shows only loading spinner for more than 7 minutes** — try to refresh window. If its still empty there is likely another process is occupying port 5000. `check-ports` should warn about this, but if it were to happen: run `make demo-reset` and `lsof -i :5000`, kill whatever is on that port, then run `make dapp`.
+**Frontend shows only loading spinner for more than 7 minutes** — try to refresh window. If its still empty there is likely another process occupying port 5000. `check-ports` should warn about this, but if it were to happen: run `make demo-reset` and `lsof -i :5000`, kill whatever is on that port, then run `make dapp`.
 
 **Frontend shows tx as pending forever** — likely a another process is already occupying port 8545. MetaMask runs in your browser, not in Docker, so it connects to `localhost:8545` — if something else is sitting on that port, transactions will silently go nowhere. `check-ports` should warn about this, but if it were to happen: run `make demo-reset` and `lsof -i :8545`, kill whatever is on that port, then run `make dapp`.
 
@@ -180,7 +186,7 @@ After the demo has finished loading, open the `explore` tab and search for:
 trait.type=sword trait.rarity=common trait.color=blood_red trait.element=none
 ```
 
-This returns multiple identical-looking swords. In the current ERC-721 collection, each of these is a separate NFT, meaning every sword is treated as a unique asset with a unique `tokenId`. It works, but doesn’t fit our use case well.
+This returns ~30 identical-looking swords. In the current ERC-721 collection, each of these is a separate NFT, meaning every sword is treated as a unique asset with a unique `tokenId`. It works, but doesn’t fit our use case well.
 
 With ERC-1155, instead of one `tokenId` per sword, a single id could represent the item (e.g. "Common Blood Red Sword"), with balances tracked per user; `balanceOf(owner, id)`.
 
@@ -192,7 +198,7 @@ The marketplace contract would also need to be extended to support ERC-1155 orde
 
 The pipeline hangs up for a long time during one specific stage – minting nfts to the demo participants.
 
-If the demo collection followed a standard that support batch minting, we could have one transaction per participant, instead of the current 500 transactions needed to mint each `tokenId`.
+If the demo collection followed a standard that supports batch minting, we could have one transaction per participant, instead of the current 500 transactions needed to mint each `tokenId`.
 
 Batch minting is part of the ERC-1155 standard.
 
