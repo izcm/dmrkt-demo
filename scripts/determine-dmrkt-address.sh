@@ -59,18 +59,24 @@ MARKETPLACE_ADDR=$(cast compute-address "$DEPLOYER_ADDR" --nonce "$NONCE" | awk 
 
 echo "addr   → $MARKETPLACE_ADDR"
 
-# write to env
-write_or_replace() {
-    local file="$1" key="$2" value="$3"
-    if [ -f "$file" ] && grep -q "^${key}=" "$file"; then
-        sed -i "s|^${key}=.*|${key}=${value}|" "$file"
-    else
-        echo "${key}=${value}" >> "$file"
-    fi
-}
-
-write_or_replace "$ENV_RUNTIME" MARKETPLACE_ADDR "$MARKETPLACE_ADDR"
+# write or replace marketplace_addr env.runtime
+if grep -q "^MARKETPLACE_ADDR=" "$ENV_RUNTIME"; then
+    sed -i "s|^MARKETPLACE_ADDR=.*|MARKETPLACE_ADDR=${MARKETPLACE_ADDR}|" "$ENV_RUNTIME"
+else
+    echo "MARKETPLACE_ADDR=${MARKETPLACE_ADDR}" >> "$ENV_RUNTIME"
+fi
 echo "Wrote MARKETPLACE_ADDR → .env.runtime"
+
+# write to chains.json
+cat > "./chains.json" << EOF
+[
+  {
+    "rpcUrl": "http://anvil:8545",
+    "marketplaceAddr": "$MARKETPLACE_ADDR"
+  }
+]
+
+EOF
 
 echo ""
 echo "✅ done"

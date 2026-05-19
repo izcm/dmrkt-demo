@@ -154,23 +154,66 @@ Tears down all containers and volumes. Safe to re-run `make dapp` after.
 
 > Always run `make demo-reset` before troubleshooting.
 
-**401 on image pull** — Docker needs to be authenticated with GitHub Container Registry to pull `ghcr.io` images. Generate a [classic Personal Access Token](https://github.com/settings/tokens) with `read:packages` scope, then run:
+### 401 on image pull
+
+Docker needs access to `ghcr.io`.
+
+Generate a GitHub Personal Access Token with `read:packages`, then:
 
 ```bash
 docker login ghcr.io
 ```
 
-Use your GitHub username and the token as the password.
+Use your GitHub username and the token as password.
 
-**DNS error / failed to lookup address during setup** — the RPC call sometimes fails. Just run `make dapp` again.
+### DNS / RPC lookup failure during setup
 
-**No frontend at `localhost:3000`** — likely another process is occupying port 3000. `check-ports` should warn about this, but if it were to happen: run `make demo-reset` and `lsof -i :3000`, kill whatever is on that port, then run `make dapp`.
+RPC calls occasionally fail during setup.
 
-**Frontend shows only loading spinner for more than 7 minutes** — try to refresh window. If its still empty there is likely another process occupying port 5000. `check-ports` should warn about this, but if it were to happen: run `make demo-reset` and `lsof -i :5000`, kill whatever is on that port, then run `make dapp`.
+Just run:
 
-**Frontend shows tx as pending forever** — likely a another process is already occupying port 8545. MetaMask runs in your browser, not in Docker, so it connects to `localhost:8545` — if something else is sitting on that port, transactions will silently go nowhere. `check-ports` should warn about this, but if it were to happen: run `make demo-reset` and `lsof -i :8545`, kill whatever is on that port, then run `make dapp`.
+```bash
+make dapp
+```
 
-**Frontend shows no NFTs at `explore` tab** — `FORK_START_BLOCK` mismatch; re-run `make demo-prepare`. Should not happen if you're using `make dapp` as entrypoint.
+again.
+
+### Frontend stuck loading or transactions never confirm
+
+Another local process is likely occupying a required port.
+
+| Port   | Used for    |
+| ------ | ----------- |
+| `3000` | frontend    |
+| `5000` | indexer API |
+| `8545` | anvil RPC   |
+
+Check active processes:
+
+```bash
+lsof -i :3000
+lsof -i :5000
+lsof -i :8545
+```
+
+Kill the conflicting process, then:
+
+```bash
+make demo-reset
+make dapp
+```
+
+> MetaMask connects directly to `localhost:8545`, outside Docker.
+
+### No NFTs in the `explore` tab
+
+`FORK_START_BLOCK` mismatch.
+
+Re-run:
+
+```bash
+make demo-prepare
+```
 
 ---
 
@@ -180,7 +223,7 @@ Use your GitHub username and the token as the password.
 
 As the demo moved into a gaming theme, where each NFT represents a game asset, I realized ERC-1155 would be a better fit than ERC-721.
 
-After the demo has finished loading, open the `explore` tab and search for:
+To see why, open the `explore` tab and search for:
 
 ```
 trait.type=sword trait.rarity=common trait.color=blood_red trait.element=none

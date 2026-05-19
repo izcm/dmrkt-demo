@@ -6,7 +6,7 @@ set -e
 TOML="config/sim/pipeline.toml"
 
 if [ ! -f "$TOML" ]; then
-cat > "$TOML" <<EOF
+cat > "$TOML" << EOF
 [31337]
 endpoint_url = "http://anvil:8545"
 

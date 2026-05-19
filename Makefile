@@ -52,6 +52,7 @@ demo-prepare-local: ensure-dirs
 ensure-dirs: 
 	@mkdir -p config/sim
 	@mkdir -p out/broadcast
+	@touch chains.json
 
 # ───────────────────────────────────────────────
 #   START

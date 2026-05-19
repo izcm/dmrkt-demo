@@ -48,7 +48,8 @@ services:
     env_file: "./env.example/indexer.env" # static env
     environment: # dynamic env
       - FORK_START_BLOCK=${FORK_START_BLOCK}
-      - MARKETPLACE_ADDR=${MARKETPLACE_ADDR}
+    volumes: # chain config
+      - ./chains.json:/app/chains.json:ro
     depends_on:
       - anvil
       - mongo
@@ -95,3 +96,6 @@ services:
       # environment files
       - ./env.example:/app/env.example:rw
       - ./.env.runtime:/app/.env.runtime:rw
+
+      # chains.json for indexer
+      - ./chains.json:/app/chains.json:rw
