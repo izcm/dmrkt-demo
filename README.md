@@ -1,13 +1,12 @@
 # d | mrkt playground
 
-On my journey to learn web3, having written and tested some contracts, I wanted to make a realistic marketplace demo.
+After having written and tested some contracts, I wanted to make a realistic marketplace demo.
 
 The first obstacle was how to populate the demo with data, as it wasn't as straightforward as seeding a regular DB.
 
-While learning foundry scripting, I realized I could control the economy 😈 — locally.
-So instead of seeding data, I simulated it.
+While learning Foundry scripting, I realized I could control the economy 😈 locally by seeding the fork itself.
 
-The Foundry pipeline is the heart of the demo, and probably the most interesting part if you're into web3 infra.
+The Foundry pipeline is the heart of this demo, and probably the most interesting part if you're into web3 infra.
 
 **Contents** — [How it works](#how-it-works) · [Getting started](#getting-started) · [Reset](#reset) · [Troubleshooting](#troubleshooting) · [What to improve](#what-to-improve)
 
@@ -49,11 +48,12 @@ mainnet RPC
  frontend  ──── queries API + subscribes to WebSocket
 ```
 
-> READMEs for the frontend and indexer are not yet written, but will be within the next week or so.
+> [!NOTE]
+> Frontend README is not written yet, but will be shortly.
 
 ### Logs
 
-Sim broadcast logs are written to `out/broadcast/` — a bind-mounted directory owned by the user who ran `make dapp`.
+Simulation pipeline's broadcast logs are written to `out/broadcast/` — a bind-mounted directory owned by the user who ran `make dapp`.
 
 ---
 
@@ -89,6 +89,7 @@ make dapp
 - **prepare** — computes fork start-block and pipeline window, derives the marketplace contract address deterministically, and writes the results to toml and env files; runs inside a container so no local tooling is needed
 - **up** — starts the services via Docker Compose
 
+> [!TIP]
 > If you have [Foundry](https://book.getfoundry.sh/) installed locally, you can run `make demo-prepare-local && make demo-up` instead to skip the setup container.
 
 Visit `localhost:3000` to watch the pipeline progress; once the trades are done, it'll link you to the marketplace.
@@ -97,7 +98,10 @@ The first run pulls and builds images before anything starts. After that, expect
 
 Coffee break? ☕
 
-> ⚠️ At a specific stage the pipeline might appear to freeze — it hasn't. The demo nft-collection doesn't support batch mint, so 500 tokens = 500 transactions. Expect a ~90 second pause mid-run.
+> [!NOTE]
+> At one stage the pipeline may appear to freeze — it hasn't.
+>
+> The demo NFT collection does not support batch minting, so minting 500 NFTs requires 500 separate transactions. Expect roughly a 90 second pause mid-run.
 
 ### Connect as a demo participant
 
@@ -108,7 +112,8 @@ We recommend connecting as one — you'll see your orders and trade history the 
 
 The next steps assume config/sim/mnemonic.example.json exists — run make dapp first if it doesn't.
 
-> Your mnemonic is generated once and persists across runs; it only changes if the file is deleted or becomes invalid.
+> [!NOTE]
+> The mnemonic is generated once and persists across runs; it only changes if the file is deleted or becomes invalid.
 
 In your browser:
 
@@ -126,7 +131,8 @@ In your browser:
 
 To connect as another demo participant, click `+ Add account`. Each added account derives the next address from the same mnemonic.
 
-> Optional: if you want to see your WETH balance in MetaMask, you can add the anvil network to your wallet and import the token at `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2` — not required for the demo.
+> [!TIP]
+> To see WETH balance in MetaMask, add the anvil network to your wallet and import the token at `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2` — not required to run demo.
 
 Once the demo is running, visit `localhost:3000` and connect with MetaMask. Go to the `feed` tab and search for:
 
@@ -152,6 +158,7 @@ Tears down all containers and volumes. Safe to re-run `make dapp` after.
 
 ## Troubleshooting
 
+> [!IMPORTANT]
 > Always run `make demo-reset` before troubleshooting.
 
 ### 401 on image pull
@@ -203,9 +210,7 @@ make demo-reset
 make dapp
 ```
 
-> MetaMask connects directly to `localhost:8545`, outside Docker.
-
-### No NFTs in the `explore` tab
+### Frontend `explore` tab shows no NFTs
 
 `FORK_START_BLOCK` mismatch.
 
