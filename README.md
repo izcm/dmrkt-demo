@@ -1,10 +1,10 @@
 # d | mrkt playground
 
-After having written and tested some contracts, I wanted to make a realistic marketplace demo.
+After having written a couple of solidity contracts, I wanted to simulate a realistic marketplace.
 
-The first obstacle was how to populate the demo with data, as it wasn't as straightforward as seeding a regular DB.
+An early priority was having sales and orders ready for users to interact with, but that takes more than just seeding a regular DB — the transactions themselves had to be simulated.
 
-While learning Foundry scripting, I realized I could control the economy 😈 locally by seeding the fork itself.
+Foundry scripting was the answer 🛠️
 
 The Foundry pipeline is the heart of this demo, and probably the most interesting part if you're into web3 infra.
 
@@ -53,7 +53,7 @@ mainnet RPC
 
 ### Logs
 
-Simulation pipeline's broadcast logs are written to `out/broadcast/` — a bind-mounted directory owned by the user who ran `make dapp`.
+Broadcast logs are written to `out/broadcast/`.
 
 ---
 
@@ -63,7 +63,7 @@ Simulation pipeline's broadcast logs are written to `out/broadcast/` — a bind-
 
 - Docker + Docker Compose
 - A mainnet RPC URL — [Alchemy](https://www.alchemy.com/) works well.
-- Authenticated with GitHub Container Registry — if you've pulled from `ghcr.io` before, you're probably fine. If not, see [401 on image pull](#401-on-image-pull) in Troubleshooting.
+- Authenticated with GitHub Container Registry. If you've pulled from `ghcr.io` before, you're probably fine. If not, see [401 on image pull](#401-on-image-pull) in Troubleshooting.
 
 Create a `.env` in root. Set `MAINNET_RPC` to the full provider URL, API key included:
 
@@ -108,7 +108,8 @@ Coffee break? ☕
 The pipeline revolves around a fixed set of accounts — bootstrapped with ETH, WETH, and NFTs, and used as actors for every trade and listing.
 
 We'll call them the demo participants 👨‍💻
-We recommend connecting as one — you'll see your orders and trade history the moment you log in.
+
+It's recommended to connect as one as you'll see your orders and trade history the moment you log in.
 
 The next steps assume config/sim/mnemonic.example.json exists — run make dapp first if it doesn't.
 
@@ -132,7 +133,7 @@ In your browser:
 To connect as another demo participant, click `+ Add account`. Each added account derives the next address from the same mnemonic.
 
 > [!TIP]
-> To see WETH balance in MetaMask, add the anvil network to your wallet and import the token at `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2` — not required to run demo.
+> To see WETH balance in MetaMask, add the anvil network to your wallet and import the token at `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2`
 
 Once the demo is running, visit `localhost:3000` and connect with MetaMask. Go to the `feed` tab and search for:
 
@@ -160,6 +161,9 @@ Tears down all containers and volumes. Safe to re-run `make dapp` after.
 
 > [!IMPORTANT]
 > Always run `make demo-reset` before troubleshooting.
+
+todo: add a "no docker download"
+docker engine + docker cli + https://docs.docker.com/compose/install/
 
 ### 401 on image pull
 
