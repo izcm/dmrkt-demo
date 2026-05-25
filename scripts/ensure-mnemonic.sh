@@ -18,7 +18,10 @@ sep
 echo "🔑 Mnemonic"
 sep
 
-PHRASE=$(awk -F'"' '/mnemonic/{print $4}' "$MNEMONIC_JSON" 2>/dev/null)
+PHRASE=""
+if [ -f "$MNEMONIC_JSON" ]; then
+    PHRASE=$(awk -F'"' '/mnemonic/{print $4}' "$MNEMONIC_JSON")
+fi
 
 write_phrase() {
     echo "PHRASE=\"$PHRASE\"" >> "$ENV_RUNTIME"
