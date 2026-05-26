@@ -7,8 +7,8 @@ notes/
 # nb: all other .example envs are intentionally included
 
 # config
-chains.json
 config/sim/
 
 # artifacts
 out/
+chains.json

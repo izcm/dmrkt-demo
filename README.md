@@ -66,6 +66,12 @@ Broadcast logs are written to `out/broadcast/`.
 - A mainnet RPC URL — [Alchemy](https://www.alchemy.com/) works well.
 - Authenticated with GitHub Container Registry. If you've pulled from `ghcr.io` before, you're probably fine. If not, see [401 on image pull](#401-on-image-pull) in Troubleshooting.
 
+**Specs**
+
+Some info if you're running this demo in a VM:
+
+- Memory:
+
 Create a `.env` in root. Set `MAINNET_RPC` to the full provider URL, API key included:
 
 ```

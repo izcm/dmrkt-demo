@@ -24,7 +24,7 @@ if [ -f "$MNEMONIC_JSON" ]; then
 fi
 
 write_phrase() {
-    echo "PHRASE=\"$PHRASE\"" >> "$ENV_RUNTIME"
+    printf '\nPHRASE="%s"\n' "$PHRASE" >> "$ENV_RUNTIME"
     echo "Wrote PHRASE → .env.runtime"
 }
 
