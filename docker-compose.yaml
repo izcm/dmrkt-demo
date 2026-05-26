@@ -25,7 +25,6 @@ services:
   # DMRKT COMPONENTS
   sim:
     image: sim
-    user: ${UID}
     build:
       context: https://github.com/izcm/dmrkt-contracts.git
     volumes:
@@ -60,9 +59,9 @@ services:
       context: https://github.com/izcm/dmrkt-frontend.git
       args:
         NEXT_PUBLIC_MARKETPLACE_ADDR: ${MARKETPLACE_ADDR}
-        NEXT_PUBLIC_ANVIL_RPC_URL: http://localhost:8545
-        NEXT_PUBLIC_INDEXER_API: http://localhost:5000
-        NEXT_PUBLIC_INDEXER_WS: ws://localhost:5001
+        NEXT_PUBLIC_ANVIL_RPC_URL: http://${APP_HOST}:8545
+        NEXT_PUBLIC_INDEXER_API: http://${APP_HOST}:5000
+        NEXT_PUBLIC_INDEXER_WS: ws://${APP_HOST}:5001
     env_file: "./env.example/frontend.env"
     ports:
       - "3000:3000"
@@ -97,5 +96,5 @@ services:
       - ./env.example:/app/env.example:rw
       - ./.env.runtime:/app/.env.runtime:rw
 
-      # chains.json for indexer
+      # chains.json for indexerAPP_HOST
       - ./chains.json:/app/chains.json:rw

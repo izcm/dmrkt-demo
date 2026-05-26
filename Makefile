@@ -1,8 +1,5 @@
-# NOTE: include .env snapshots vars at parse time; demo-up reloads .env.runtime
+# NOTE: include .env static vars at parse time; demo-up loads .env.runtime
 
-# these will get stale when setup scripts in demo-prepare runs
-# demo-up must set the vars to these fresh values before running docker compose
-# done by: set -a && . ./.env.runtime && set +a
 include .env
 export
 
@@ -15,7 +12,14 @@ PROJECT_ROOT  := $(shell pwd)
 TOML          := $(PROJECT_ROOT)/config/sim/pipeline.toml
 MNEMONIC_JSON := $(PROJECT_ROOT)/config/sim/mnemonic.example.json
 
-export PROJECT_ROOT TOML MNEMONIC_JSON PHRASE
+# user can input the APP_HOST by providing VM_IP in .env – defaults to localhost
+ifndef VM_IP
+APP_HOST = localhost
+else 
+APP_HOST = $(VM_IP)
+endif
+
+export PROJECT_ROOT TOML MNEMONIC_JSON
 
 # pipeline window
 EPOCH_COUNT ?= 4
@@ -49,10 +53,12 @@ demo-prepare-local: ensure-dirs
 	@bash ./scripts/determine-dmrkt-address.sh
 
 # NOTE: touch/mkdir so the demo runner owns the files, not root via docker
-ensure-dirs: 
+# chmod 777 allows container user (UID 1000) to write into mounted dirs on mac
+ensure-dirs:
 	@mkdir -p config/sim
 	@mkdir -p out/broadcast
 	@touch chains.json
+	@chmod -R 777 config/sim out/broadcast
 
 # ───────────────────────────────────────────────
 #   START
