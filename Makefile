@@ -12,14 +12,10 @@ PROJECT_ROOT  := $(shell pwd)
 TOML          := $(PROJECT_ROOT)/config/sim/pipeline.toml
 MNEMONIC_JSON := $(PROJECT_ROOT)/config/sim/mnemonic.example.json
 
-# user can input the APP_HOST by providing VM_IP in .env – defaults to localhost
-ifndef VM_IP
-APP_HOST = localhost
-else 
-APP_HOST = $(VM_IP)
-endif
+# user can configure APP_HOST in .env – defaults to localhost
+APP_HOST ?= localhost
 
-export PROJECT_ROOT TOML MNEMONIC_JSON
+export PROJECT_ROOT TOML MNEMONIC_JSON APP_HOST
 
 # pipeline window
 EPOCH_COUNT ?= 4
