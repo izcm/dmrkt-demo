@@ -38,7 +38,7 @@ demo-prepare: ensure-dirs
 	@bash ./scripts/ensure-statics.sh
 	@cp .env .env.runtime
 	@echo "🔢 Finding block number and timestamps..."
-	@docker compose --profile setup run --rm setup
+	@docker compose --profile setup run --quiet-pull --rm setup
 
 # run setup locally instead of in container (requires foundry)
 demo-prepare-local: ensure-dirs
@@ -69,10 +69,10 @@ check-ports:
 		fi \
 	done
 
-# reload .env.runtime so compose sees values written by demo-prepare, not the stale snapshot
+# reload .env.runtime so compose sees values written by demo-prepare
 demo-up: check-ports
 	@set -a && . ./.env.runtime && set +a && \
-	docker compose up --build
+	docker compose up --build --quiet-pull
 
 # ───────────────────────────────────────────────
 #   RESET

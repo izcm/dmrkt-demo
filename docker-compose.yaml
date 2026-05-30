@@ -24,9 +24,7 @@ services:
 
   # DMRKT COMPONENTS
   sim:
-    image: sim
-    build:
-      context: https://github.com/izcm/dmrkt-contracts.git
+    image: ghcr.io/izcm/dmrkt-contracts:latest
     volumes:
       # config files + env
       - ./config/sim/mnemonic.example.json:/app/devtools/data/31337/mnemonic.json:rw
@@ -38,9 +36,7 @@ services:
       - anvil
 
   indexer:
-    image: indexer
-    build:
-      context: https://github.com/izcm/dmrkt-indexer.git
+    image: ghcr.io/izcm/dmrkt-indexer:latest
     ports:
       - "5000:5000" # http
       - "5001:5001" # websocket
@@ -96,5 +92,5 @@ services:
       - ./env.example:/app/env.example:rw
       - ./.env.runtime:/app/.env.runtime:rw
 
-      # chains.json for indexerAPP_HOST
+      # supported chains
       - ./chains.json:/app/chains.json:rw
