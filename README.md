@@ -14,7 +14,7 @@ Everything runs via Docker Compose 🐳
 
 ## How it works
 
-Ethereum mainnet is forked at a block number ~28 days in the past. The timespan from that block to now becomes the simulation window.
+Ethereum mainnet gets forked at a block number ~28 days in the past. The timespan from that block to now becomes the simulation window.
 
 The simulation step deploys contracts, generates signed EIP-712 orders and executes trades on a subset of these. For each trade, the forked chain's internal clock is incremented – spreading activity across the simulation window.
 
@@ -130,7 +130,13 @@ All services use pre-built images, except the frontend. It has to be built local
 
 Visit `localhost:3000` on to watch pipeline progress; once the trades are done, it'll link you to the marketplace.
 
-The first startup takes longer, as Docker has to pull images and build the frontend. After that, expect another 5 minutes for the simulation pipeline to finish.
+The first startup takes longer — Docker pulls images and builds the frontend before anything starts.
+
+|           | Linux  | Windows (WSL) |
+| --------- | ------ | ------------- |
+| First run | ~8 min | ~10–12 min    |
+
+After that, expect another 5 minutes for the simulation pipeline to finish.
 
 Coffee break? ☕
 
@@ -220,20 +226,15 @@ docker login ghcr.io
 
 Use your GitHub username and the token as password.
 
-### DNS / RPC lookup failure during setup
+### Anvil marked as unhealthy / sim and indexer never start
 
-RPC calls occasionally fail during setup.
-
-Just run:
+Anvil failed to fork mainnet. Check `docker logs dmrkt-anvil-1` for the error — it's usually a bad or rate-limited RPC URL.
 
 ```bash
-
 make demo-reset && make dapp
 ```
 
-Until it works.
-
-### Frontend stuck loading or transactions never confirm
+### Frontend shows transactions as pending forever
 
 Another local process is likely occupying a required port.
 
@@ -300,9 +301,9 @@ Batch minting is part of the ERC-1155 standard.
 
 ### Button flicker in `feed` tab
 
-The action button briefly displays `Pending...` before resolving to its enabled or disabled state. Since transaction simulation only starts when a user selects a row, the button visibly flickers.
+The action button briefly displays `Pending...` before resolving to its final state.
 
-This could be improved by pre-simulating transactions.
+A potential improvement would be to simulate transactions ahead of time rather than per selection.
 
 ---
 

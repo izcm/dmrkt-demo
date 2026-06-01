@@ -13,9 +13,16 @@ services:
       - --fork-block-number=${FORK_START_BLOCK}
       - --mnemonic=${PHRASE}
       - --accounts=5
-      - --silent
+      - --quiet
     ports:
       - "8545:8545"
+    healthcheck:
+      test:
+        ["CMD", "cast", "block-number", "--rpc-url", "http://localhost:8545"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
 
   mongo:
     image: mongo:7
@@ -27,9 +34,9 @@ services:
     image: ghcr.io/izcm/dmrkt-contracts:latest
     entrypoint:
       [
-        "sh",
+        "bash",
         "-c",
-        "make compose-entrypoint 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tee /app/devtools/data/31337/sim.log",
+        "echo '✔ Anvil up' && make compose-entrypoint 2>&1 | tee >(sed --unbuffered 's/\\x1b\\[[0-9;]*m//g' > /app/devtools/data/31337/sim.log)",
       ]
     volumes:
       # config files + env
@@ -40,7 +47,8 @@ services:
       - ./out/broadcast:/app/devtools/broadcast:rw
       - ./out/sim.log:/app/devtools/data/31337/sim.log
     depends_on:
-      - anvil
+      anvil:
+        condition: service_healthy
 
   indexer:
     image: ghcr.io/izcm/dmrkt-indexer:latest
@@ -53,24 +61,26 @@ services:
     volumes: # chain config
       - ./chains.json:/app/chains.json:ro
     depends_on:
-      - anvil
-      - mongo
+      anvil:
+        condition: service_healthy
+      mongo:
+        condition: service_started
 
-  frontend:
-    image: frontend
-    build:
-      context: https://github.com/izcm/dmrkt-frontend.git
-      args:
-        NEXT_PUBLIC_MARKETPLACE_ADDR: ${MARKETPLACE_ADDR}
-        NEXT_PUBLIC_ANVIL_RPC_URL: http://${APP_HOST}:8545
-        NEXT_PUBLIC_INDEXER_API: http://${APP_HOST}:5000
-        NEXT_PUBLIC_INDEXER_WS: ws://${APP_HOST}:5001
-    env_file: "./env.example/frontend.env"
-    ports:
-      - "3000:3000"
-    depends_on:
-      - anvil
-      - indexer
+  # frontend:
+  #   image: frontend
+  #   build:
+  #     context: https://github.com/izcm/dmrkt-frontend.git
+  #     args:
+  #       NEXT_PUBLIC_MARKETPLACE_ADDR: ${MARKETPLACE_ADDR}
+  #       NEXT_PUBLIC_ANVIL_RPC_URL: http://${APP_HOST}:8545
+  #       NEXT_PUBLIC_INDEXER_API: http://${APP_HOST}:5000
+  #       NEXT_PUBLIC_INDEXER_WS: ws://${APP_HOST}:5001
+  #   env_file: "./env.example/frontend.env"
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - anvil
+  #     - indexer
 
   setup:
     image: ghcr.io/foundry-rs/foundry

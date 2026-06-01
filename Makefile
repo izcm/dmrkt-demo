@@ -37,8 +37,10 @@ dapp: demo-prepare demo-up
 demo-prepare: ensure-dirs
 	@bash ./scripts/ensure-statics.sh
 	@cp .env .env.runtime
+	@echo "🐳 Pulling setup image..."
+	@docker compose pull setup
 	@echo "🔢 Finding block number and timestamps..."
-	@docker compose --profile setup run --quiet-pull --rm setup
+	@docker compose --profile setup run --rm setup
 
 # run setup locally instead of in container (requires foundry)
 demo-prepare-local: ensure-dirs
