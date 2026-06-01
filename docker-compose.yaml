@@ -12,7 +12,7 @@ services:
       - --port=8545
       - --fork-block-number=${FORK_START_BLOCK}
       - --mnemonic=${PHRASE}
-      - --accounts=10
+      - --accounts=5
       - --silent
     ports:
       - "8545:8545"
@@ -25,13 +25,20 @@ services:
   # DMRKT COMPONENTS
   sim:
     image: ghcr.io/izcm/dmrkt-contracts:latest
+    entrypoint:
+      [
+        "sh",
+        "-c",
+        "make compose-entrypoint 2>&1 | sed 's/\\x1b\\[[0-9;]*m//g' | tee /app/devtools/data/31337/sim.log",
+      ]
     volumes:
       # config files + env
       - ./config/sim/mnemonic.example.json:/app/devtools/data/31337/mnemonic.json:rw
       - ./config/sim/pipeline.toml:/app/devtools/pipeline.toml:rw
       - ./env.example/sim.env:/app/devtools/.env:ro
-      # broadcst logs
+      # broadcst logs & script logs
       - ./out/broadcast:/app/devtools/broadcast:rw
+      - ./out/sim.log:/app/devtools/data/31337/sim.log
     depends_on:
       - anvil
 

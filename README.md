@@ -1,61 +1,70 @@
-# d | mrkt playground
+# d | mrkt — seeded NFT marketplace demo
 
-After having written a couple of solidity contracts, I wanted to simulate a realistic marketplace.
+A Web3 ecosystem that forks Ethereum mainnet and simulates ~28 days of activity.
 
-An early priority was having sales and orders ready for users to interact with, but that takes more than just seeding a regular DB — the transactions themselves had to be simulated.
-
-Foundry scripting was the answer 🛠️
-
-The Foundry pipeline is the heart of this demo, and probably the most interesting part if you're into web3 infra.
+Everything runs via Docker Compose 🐳
 
 **Contents** — [How it works](#how-it-works) · [Getting started](#getting-started) · [Reset](#reset) · [Troubleshooting](#troubleshooting) · [What to improve](#what-to-improve)
 
 **Getting started** — [Prerequisites](#prerequisites) · [VM notes](#vm-notes) · [Environment](#environment) · [Run](#run)
 
+## ![d | mrkt in browser](./dmrkt_preview.png)
+
 ---
 
 ## How it works
 
-A fully populated NFT marketplace running at `localhost:3000` — with historical listings, bids, and sales already in the database when the frontend loads. No blank-slate local chain; the demo bootstraps ~28 days of on-chain activity before you open a browser.
+The demo forks Ethereum mainnet at a block number ~28 days in the past. The timespan from that block to now becomes the simulation window.
+
+The simulation step deploys contracts, generates signed EIP-712 orders and executes trades on a subset of these. For each trade, the forked chain's internal clock is incremented – spreading activity across the simulation window.
+
+Each trade emits a `Settlement` event, which is consumed by a NodeJS indexer and persisted to MongoDB.
+
+A NextJS single-page application displays this data and allows users to create orders, execute trades, and view receipts.
+
+Realtime updates are streamed via WebSocket.
 
 ### Services
 
-| Service              | Port               | Role                                                        |
-| -------------------- | ------------------ | ----------------------------------------------------------- |
-| anvil                | `8545`             | Local EVM fork of Ethereum mainnet                          |
-| [sim][contracts]     | —                  | Deploys contracts + runs Foundry scripts to generate events |
-| [indexer][indexer]   | `5000` / `5001 ws` | Backend API + WebSocket                                     |
-| [frontend][frontend] | `3000`             | Marketplace UI                                              |
-| mongo                | `27017`            | DB                                                          |
+| Service              | Port               | Role                                        |
+| -------------------- | ------------------ | ------------------------------------------- |
+| anvil                | `8545`             | Local EVM fork of Ethereum mainnet          |
+| [sim][contracts]     | —                  | Contracts + Marketplace activity simulation |
+| [indexer][indexer]   | `5000` / `5001 ws` | Indexer + API + WebSocket                   |
+| [frontend][frontend] | `3000`             | Marketplace UI                              |
+| mongo                | `27017`            | MongoDB database                            |
 
 [contracts]: https://github.com/izcm/dmrkt-contracts
 [indexer]: https://github.com/izcm/dmrkt-indexer
 [frontend]: https://github.com/izcm/dmrkt-frontend
 
-### Pipeline
+> [!NOTE]
+> Frontend README is not written yet, but will be shortly.
+
+### Flow
 
 ```
 mainnet RPC
      │  (fork at computed block)
      ▼
   anvil
-     │  (deploy contracts)
-     ▼
-   sim  ──── Foundry scripts replay ~28 days of events
      │
      ▼
- indexer  ──── listens for events, writes to MongoDB
+   sim  ──── deploys contracts + simulates activity
      │
      ▼
- frontend  ──── queries API + subscribes to WebSocket
+ indexer ──── indexes events, exposes API + WebSocket
+     │
+     ▼
+ frontend ──── queries API + subscribes to WebSocket
 ```
-
-> [!NOTE]
-> Frontend README is not written yet, but will be shortly.
 
 ### Logs
 
-Broadcast logs are written to `out/broadcast/`.
+Simulation logs are found in:
+
+- `out/broadcast/`: Foundry broadcast logs
+- `out/sim.log`: Pretty-printed output from the simulation pipeline
 
 ---
 
@@ -72,8 +81,9 @@ Broadcast logs are written to `out/broadcast/`.
 
 > Skip this section if you're not running the demo in a virtual machine
 
-- Expect roughly 10–12 GB of Docker images/data after full setup.
-- Clipboard API only works in secure contexts (`https` or `localhost`). When accessing the frontend through the VM IP instead of `localhost`, the app falls back to a manual copy/paste popup.
+- **Disk:** 20 GB minimum. A full setup consumes roughly 14 GB.
+- **RAM:** 4 GB minimum. Runtime usage is low, but frontend builds requires some memory.
+- **Browser Clipboard API** only works in secure contexts (`https` or `localhost`). When accessing the frontend through the VM IP instead of `localhost`, the app falls back to a manual copy/paste popup.
 
 Set `APP_HOST` in `.env` to the VM's IP:
 
@@ -87,7 +97,7 @@ To get the frontend to run in safe context (resolving the clipboard issue), acce
 ssh -L 3000:localhost:3000 user@vm-ip
 ```
 
-Then access the demo at:
+The demo then runs at:
 
 ```txt
 http://localhost:3000
@@ -95,7 +105,7 @@ http://localhost:3000
 
 ### Environment
 
-Provide `MAINNET_RPC` via `.env` or an exported shell variable, using your full Ethereum provider URL (including the API key).
+Provide `MAINNET_RPC` via `.env` or an exported shell variable:
 
 ```
 MAINNET_RPC=https://eth-mainnet.g.alchemy.com/v2/YOUR_KEY
@@ -116,15 +126,17 @@ make dapp
 
 `make dapp` runs two steps:
 
-- **prepare** — computes fork start-block and pipeline window, derives the marketplace contract address deterministically, and writes the results to toml and env files; runs inside a container so no local tooling is needed
+- **prepare** — computes fork start-block and pipeline window, derives the marketplace contract address and writes the results to .toml and .env files
 - **up** — starts the services via Docker Compose
+
+All services use pre-built images, except the frontend. It has to be built locally since `NEXT_PUBLIC_*` variables are bundled at build time.
 
 > [!TIP]
 > If you have [Foundry](https://book.getfoundry.sh/) installed locally, you can run `make demo-prepare-local && make demo-up` instead to skip the setup container.
 
 Visit `localhost:3000` to watch the pipeline progress; once the trades are done, it'll link you to the marketplace.
 
-The first run pulls and builds images before anything starts. After that, expect another 5–10 minutes while the pipeline forks mainnet and replays the event history.
+The first run pulls and builds images before anything starts. After that, expect another 5 minutes while the pipeline forks mainnet and runs the simulation.
 
 Coffee break? ☕
 
@@ -139,12 +151,14 @@ The pipeline revolves around a fixed set of accounts — bootstrapped with ETH, 
 
 We'll call them the demo participants 👨‍💻
 
-It's recommended to connect as one as you'll see your orders and trade history the moment you log in.
+It's recommended to connect as one as you'll own orders and trade history the moment you log in.
 
 The next steps assume config/sim/mnemonic.example.json exists — run make dapp first if it doesn't.
 
 > [!NOTE]
 > The mnemonic is generated once and persists across runs; it only changes if the file is deleted or becomes invalid.
+>
+> Demo users are derived from the mnemonic and used as inputs to the simulation pipeline. A new mnemonic therefore produces a different dataset.
 
 In your browser:
 
@@ -162,6 +176,12 @@ In your browser:
 
 To connect as another demo participant, click `+ Add account`. Each added account derives the next address from the same mnemonic.
 
+One of the strengths of the frontend application is its keyboard accessibility. If you're a keyboard user, I strongly recommend having MetaMask in `Popup` mode:
+
+1. Inside the MetaMask extension; click the hamburger menu icon
+
+2. Select `Switch to popup`
+
 > [!TIP]
 > To see WETH balance in MetaMask, add the anvil network to your wallet and import the token at `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2`
 
@@ -173,7 +193,7 @@ maker=me status=active
 
 If everything worked correctly, you should see your active orders along with the `Cancel order` action button.
 
-After having had a look around, maybe you'll agree with me that [ERC-1155 is a better fit for a gaming collection](#erc-1155-is-a-better-fit-for-a-gaming-collection).
+After having a look around, maybe you'll agree with me that [ERC-1155 is a better fit for a gaming collection](#erc-1155-is-a-better-fit-for-a-gaming-collection).
 
 ---
 
@@ -191,9 +211,6 @@ Tears down all containers and volumes. Safe to re-run `make dapp` after.
 
 > [!IMPORTANT]
 > Always run `make demo-reset` before troubleshooting.
-
-todo: add a "no docker download"
-docker engine + docker cli + https://docs.docker.com/compose/install/
 
 ### 401 on image pull
 
@@ -214,10 +231,11 @@ RPC calls occasionally fail during setup.
 Just run:
 
 ```bash
-make dapp
+
+make demo-reset && make dapp
 ```
 
-again.
+Until it works.
 
 ### Frontend stuck loading or transactions never confirm
 
@@ -278,11 +296,17 @@ The marketplace contract would also need to be extended to support ERC-1155 orde
 
 ### Long pauses mid-run
 
-The pipeline hangs up for a long time during one specific stage – minting nfts to the demo participants.
+The pipeline hangs up for a long time during one specific stage — minting nfts to the demo participants.
 
 If the demo collection followed a standard that supports batch minting, we could have one transaction per participant, instead of the current 500 transactions needed to mint each `tokenId`.
 
 Batch minting is part of the ERC-1155 standard.
+
+### Button flicker in `feed` tab
+
+The action button briefly displays `Pending...` before resolving to its enabled or disabled state. Since transaction simulation only starts when a user selects a row, the button visibly flickers.
+
+This could be improved by pre-simulating transactions.
 
 ---
 

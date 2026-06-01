@@ -53,8 +53,9 @@ demo-prepare-local: ensure-dirs
 ensure-dirs:
 	@mkdir -p config/sim
 	@mkdir -p out/broadcast
+	@touch out/sim.log
 	@touch chains.json
-	@chmod -R 777 config/sim out/broadcast
+	@chmod -R 777 config/sim out/broadcast out/sim.log
 
 # ───────────────────────────────────────────────
 #   START
@@ -72,7 +73,7 @@ check-ports:
 # reload .env.runtime so compose sees values written by demo-prepare
 demo-up: check-ports
 	@set -a && . ./.env.runtime && set +a && \
-	docker compose up --build --quiet-pull
+	docker compose up --build
 
 # ───────────────────────────────────────────────
 #   RESET
