@@ -12,12 +12,6 @@ set -e
 MNEMONIC_JSON="${MNEMONIC_JSON:-config/sim/mnemonic.example.json}"
 ENV_RUNTIME="${ENV_RUNTIME:-.env.runtime}"
 
-sep() { echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"; }
-
-sep
-echo "🔑 Mnemonic"
-sep
-
 PHRASE=""
 if [ -f "$MNEMONIC_JSON" ]; then
     PHRASE=$(awk -F'"' '/mnemonic/{print $4}' "$MNEMONIC_JSON")
@@ -25,17 +19,13 @@ fi
 
 write_phrase() {
     printf '\nPHRASE="%s"\n' "$PHRASE" >> "$ENV_RUNTIME"
-    echo "Wrote PHRASE → .env.runtime"
 }
 
 if [ -n "$PHRASE" ]; then
-    echo "found   → $MNEMONIC_JSON"
     if cast wallet address --mnemonic "$PHRASE" > /dev/null 2>&1; then
-        echo "valid   → yes"
         write_phrase
         echo ""
-        echo "✅ done"
-        sep
+        echo "🔑 mnemonic   $MNEMONIC_JSON"
         exit 0
     else
         echo "Error: the mnemonic found in $MNEMONIC_JSON is invalid." >&2
@@ -44,7 +34,7 @@ if [ -n "$PHRASE" ]; then
     fi
 fi
 
-echo "found   → none, generating..."
+echo "🔑 mnemonic   none found — generating..."
 PHRASE=$(cast wallet new-mnemonic | grep -A1 "Phrase" | tail -1)
 cat > "$MNEMONIC_JSON" <<EOF
 {
@@ -53,9 +43,5 @@ cat > "$MNEMONIC_JSON" <<EOF
   "mnemonic": "$PHRASE"
 }
 EOF
-echo "saved   → $MNEMONIC_JSON"
 write_phrase
-
-echo ""
-echo "✅ done"
-sep
+echo "🔑 mnemonic   generated → $MNEMONIC_JSON"

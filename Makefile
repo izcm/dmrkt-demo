@@ -1,4 +1,5 @@
 # NOTE: include .env static vars at parse time; demo-up loads .env.runtime
+SHELL := /bin/bash
 
 include .env
 export
@@ -33,14 +34,15 @@ dapp: demo-prepare demo-up
 #   PREP
 # ───────────────────────────────────────────────
 
-# compute context
+# compute context 
+# pull seperately for prettier build output, ignore variable not set warnings
 demo-prepare: ensure-dirs
 	@bash ./scripts/ensure-statics.sh
 	@cp .env .env.runtime
 	@echo "🐳 Pulling setup image..."
-	@docker compose pull setup
+	@docker compose pull setup 2> >(grep -v 'variable is not set')
 	@echo "🔢 Finding block number and timestamps..."
-	@docker compose --profile setup run --rm setup
+	@docker compose --profile setup run --rm setup 2> >(grep -v 'variable is not set')
 
 # run setup locally instead of in container (requires foundry)
 demo-prepare-local: ensure-dirs

@@ -8,8 +8,6 @@ set -euo pipefail
 MNEMONIC_JSON="${MNEMONIC_JSON:-config/sim/mnemonic.example.json}"
 ENV_RUNTIME="${ENV_RUNTIME:-.env.runtime}"
 
-sep() { echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"; }
-
 # read mnemonic
 PHRASE=$(awk -F'"' '/mnemonic/{print $4}' "$MNEMONIC_JSON" 2>/dev/null)
 if [ -z "$PHRASE" ]; then
@@ -17,47 +15,24 @@ if [ -z "$PHRASE" ]; then
     exit 1
 fi
 
-sep
-echo "🔐 Deployer"
-sep
-
 # derive deployer key + address
 DEPLOYER_PK=$(cast wallet private-key --mnemonic "$PHRASE" --mnemonic-index 0)
 DEPLOYER_ADDR=$(cast wallet address "$DEPLOYER_PK")
 
-echo "addr   → $DEPLOYER_ADDR"
-
-echo ""
-sep
-echo "⛓️  Fork Context"
-sep
-
 # read fork start block from pipeline config
 AT_BLOCK=$(grep '^\s*fork_start_block\s*=' "$TOML" | awk -F'=' '{print $2}' | tr -d ' \t\r\n')
-
-echo "block  → $AT_BLOCK"
-
-echo ""
-sep
-echo "🔢 Nonce @ fork"
-sep
 
 # get deployer nonce at fork block
 NONCE=$(cast nonce "$DEPLOYER_ADDR" \
   --block "$AT_BLOCK" \
   --rpc-url "$MAINNET_RPC")
 
-echo "nonce  → $NONCE"
-
-echo ""
-sep
-echo "🏗️  Derived Contract"
-sep
-
 # compute marketplace address from deployer address + nonce
 MARKETPLACE_ADDR=$(cast compute-address "$DEPLOYER_ADDR" --nonce "$NONCE" | awk '{print $NF}')
 
-echo "addr   → $MARKETPLACE_ADDR"
+echo "🔐 deployer   $DEPLOYER_ADDR  (nonce $NONCE at block $AT_BLOCK)"
+echo "🏗️  marketplace $MARKETPLACE_ADDR"
+echo ""
 
 # write or replace marketplace_addr env.runtime
 if grep -q "^MARKETPLACE_ADDR=" "$ENV_RUNTIME"; then
@@ -65,7 +40,6 @@ if grep -q "^MARKETPLACE_ADDR=" "$ENV_RUNTIME"; then
 else
     echo "MARKETPLACE_ADDR=${MARKETPLACE_ADDR}" >> "$ENV_RUNTIME"
 fi
-echo "Wrote MARKETPLACE_ADDR → .env.runtime"
 
 # write to chains.json
 cat > "./chains.json" << EOF
@@ -77,7 +51,3 @@ cat > "./chains.json" << EOF
 ]
 
 EOF
-
-echo ""
-echo "✅ done"
-sep

@@ -79,20 +79,4 @@ else
     echo "FORK_START_BLOCK=$FORK_START_BLOCK" >> "$ENV_RUNTIME"
 fi
 
-# === logs ===
-
-sep() { echo "========================================"; }
-
-echo
-sep
-echo "✔ Complete!"
-sep
-echo
-echo " Fork target block: $FORK_START_BLOCK"
-echo
-echo "⏰ Timestamps:"
-echo "  start: $PIPELINE_START_TS"
-echo "  end:   $PIPELINE_END_TS"
-echo
-sep
-echo
+echo "⛓️  fork block  $FORK_START_BLOCK  (ts $PIPELINE_START_TS → $PIPELINE_END_TS)"
