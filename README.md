@@ -143,7 +143,7 @@ Coffee break? ☕
 > [!NOTE]
 > At one stage the pipeline may appear to freeze — it hasn't.
 >
-> The demo NFT collection does not support batch minting; minting 500 NFTs requires 500 separate transactions. Expect roughly a 90 second pause mid-run.
+> The demo NFT collection does not support batch minting; minting 500 NFTs requires 500 separate transactions. Expect roughly a 2-3 minute pause mid-run.
 
 ### Connect as a demo participant
 
