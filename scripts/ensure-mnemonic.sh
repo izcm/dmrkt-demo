@@ -25,7 +25,7 @@ if [ -n "$PHRASE" ]; then
     if cast wallet address --mnemonic "$PHRASE" > /dev/null 2>&1; then
         write_phrase
         echo ""
-        echo "🔑 mnemonic   $MNEMONIC_JSON"
+        echo "🔑 mnemonic    $MNEMONIC_JSON"
         exit 0
     else
         echo "Error: the mnemonic found in $MNEMONIC_JSON is invalid." >&2
@@ -34,7 +34,7 @@ if [ -n "$PHRASE" ]; then
     fi
 fi
 
-echo "🔑 mnemonic   none found — generating..."
+echo "🔑 mnemonic    none found — generating..."
 PHRASE=$(cast wallet new-mnemonic | grep -A1 "Phrase" | tail -1)
 cat > "$MNEMONIC_JSON" <<EOF
 {
@@ -44,4 +44,4 @@ cat > "$MNEMONIC_JSON" <<EOF
 }
 EOF
 write_phrase
-echo "🔑 mnemonic   generated → $MNEMONIC_JSON"
+echo "🔑 mnemonic    generated → $MNEMONIC_JSON"

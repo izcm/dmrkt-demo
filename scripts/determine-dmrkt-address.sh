@@ -30,7 +30,7 @@ NONCE=$(cast nonce "$DEPLOYER_ADDR" \
 # compute marketplace address from deployer address + nonce
 MARKETPLACE_ADDR=$(cast compute-address "$DEPLOYER_ADDR" --nonce "$NONCE" | awk '{print $NF}')
 
-echo "🔐 deployer   $DEPLOYER_ADDR  (nonce $NONCE at block $AT_BLOCK)"
+echo "🔐 deployer    $DEPLOYER_ADDR  (nonce $NONCE at block $AT_BLOCK)"
 echo "🏗️  marketplace $MARKETPLACE_ADDR"
 echo ""
 
