@@ -32,7 +32,7 @@ services:
 
   # DMRKT COMPONENTS
   sim:
-    image: ghcr.io/izcm/dmrkt-contracts:latest
+    image: ghcr.io/izcm/dmrkt-contracts:v0.0.1
     entrypoint:
       [
         "bash",
