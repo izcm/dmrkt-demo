@@ -11,7 +11,7 @@ services:
       - --host=0.0.0.0
       - --port=8545
       - --fork-block-number=${FORK_START_BLOCK}
-      - --mnemonic=${PHRASE}
+      - --mnemonic=${PARTICIPANT_MNEMONIC}
       - --accounts=5
       - --quiet
     ports:
@@ -41,12 +41,13 @@ services:
       ]
     volumes:
       # config files + env
-      - ./config/sim/mnemonic.example.json:/app/devtools/data/31337/mnemonic.json:rw
       - ./config/sim/pipeline.toml:/app/devtools/pipeline.toml:rw
       - ./env.example/sim.env:/app/devtools/.env:ro
       # broadcst logs & script logs
       - ./out/broadcast:/app/devtools/broadcast:rw
       - ./out/sim.log:/app/devtools/data/31337/sim.log
+    environment:
+      - PARTICIPANT_MNEMONIC=${PARTICIPANT_MNEMONIC}
     depends_on:
       anvil:
         condition: service_healthy
@@ -71,7 +72,7 @@ services:
     image: frontend
     build:
       context: https://github.com/izcm/dmrkt-frontend.git
-      args:
+      args: # bundled at build time
         NEXT_PUBLIC_MARKETPLACE_ADDR: ${MARKETPLACE_ADDR}
         NEXT_PUBLIC_ANVIL_RPC_URL: http://${APP_HOST}:8545
         NEXT_PUBLIC_INDEXER_API: http://${APP_HOST}:5000
@@ -94,6 +95,7 @@ services:
       - |
         bash /app/scripts/ensure-mnemonic.sh &&
         bash /app/scripts/pipeline-window.sh $SECONDS_AGO &&
+        set -a && . /app/.env.runtime && set +a &&
         bash /app/scripts/determine-dmrkt-address.sh
     environment:
       - MNEMONIC_JSON=/app/config/sim/mnemonic.example.json

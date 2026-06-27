@@ -6,7 +6,6 @@ set -euo pipefail
 
 # === config ===
 
-MNEMONIC_JSON="${MNEMONIC_JSON:-config/sim/mnemonic.example.json}"
 ENV_RUNTIME="${ENV_RUNTIME:-.env.runtime}"
 
 : "${MAINNET_RPC:?🚨 MAINNET_RPC not set}"

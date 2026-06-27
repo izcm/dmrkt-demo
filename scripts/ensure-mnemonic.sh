@@ -18,7 +18,7 @@ if [ -f "$MNEMONIC_JSON" ]; then
 fi
 
 write_phrase() {
-    printf '\nPHRASE="%s"\n' "$PHRASE" >> "$ENV_RUNTIME"
+    printf 'PARTICIPANT_MNEMONIC="%s"\n' "$PHRASE" >> "$ENV_RUNTIME"
 }
 
 if [ -n "$PHRASE" ]; then

@@ -5,13 +5,12 @@ set -euo pipefail
 # 2. Read deployer's nonce at the fork block
 # 3. Compute marketplace contract address from deployer address + nonce
 
-MNEMONIC_JSON="${MNEMONIC_JSON:-config/sim/mnemonic.example.json}"
 ENV_RUNTIME="${ENV_RUNTIME:-.env.runtime}"
 
 # read mnemonic
-PHRASE=$(awk -F'"' '/mnemonic/{print $4}' "$MNEMONIC_JSON" 2>/dev/null)
+PHRASE="$PARTICIPANT_MNEMONIC"
 if [ -z "$PHRASE" ]; then
-    echo "Error: no mnemonic found in $MNEMONIC_JSON"
+    echo "Error: PARTICIPANT_MNEMONIC not set"
     exit 1
 fi
 

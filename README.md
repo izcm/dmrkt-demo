@@ -153,10 +153,10 @@ We'll call them the demo participants 👨‍💻
 
 It's recommended to connect as one; you'll own orders and trade history the moment you log in.
 
-The next steps assume `config/sim/mnemonic.example.json` exists. Run `make dapp` first if it doesn't.
+Run `make dapp` before continuing.
 
 > [!NOTE]
-> The mnemonic is generated once and persists across runs. It only changes if the file is deleted or becomes invalid.
+> The mnemonic is generated once and persists across runs. It only changes if `config/sim/mnemonic.example.json` is deleted or the mnemonic becomes invalid / corrupted.
 >
 > Demo users are derived from the mnemonic and used as inputs to the simulation pipeline. A new mnemonic therefore produces a different dataset.
 
