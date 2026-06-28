@@ -71,7 +71,7 @@ services:
   frontend:
     image: frontend
     build:
-      context: https://github.com/izcm/dmrkt-frontend.git
+      context: https://github.com/izcm/dmrkt-frontend.git#v0.1.0
       args: # bundled at build time
         NEXT_PUBLIC_MARKETPLACE_ADDR: ${MARKETPLACE_ADDR}
         NEXT_PUBLIC_ANVIL_RPC_URL: http://${APP_HOST}:8545
