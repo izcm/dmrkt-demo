@@ -12,7 +12,7 @@ services:
       - --port=8545
       - --fork-block-number=${FORK_START_BLOCK}
       - --mnemonic=${PARTICIPANT_MNEMONIC}
-      - --accounts=5
+      - --accounts=1 # pipeline equally distributes between participants
       - --quiet
     ports:
       - "8545:8545"
@@ -32,20 +32,22 @@ services:
 
   # DMRKT COMPONENTS
   sim:
-    image: ghcr.io/izcm/dmrkt-contracts:v0.1.0
-    entrypoint:
-      [
+    image: ghcr.io/izcm/market-sim:latest
+    entrypoint: [
         "bash",
         "-c",
-        "echo '✔ Anvil up' && make compose-entrypoint 2>&1 | tee >(sed --unbuffered 's/\\x1b\\[[0-9;]*m//g' > /app/devtools/data/31337/sim.log)",
+        "echo '✔ Anvil up' && make pipeline P_SIZE=${PARTICIPANT_SIZE} \
+        EPOCH_COUNT=${EPOCH_COUNT} EPOCH_SIZE=${EPOCH_SIZE} EXPORT_FLAG=--export \
+        2>&1 | tee >(sed --unbuffered 's/\\x1b\\[[0-9;]*m//g' > /app/devtools/data/31337/sim.log)",
       ]
     volumes:
       # config files + env
       - ./config/sim/pipeline.toml:/app/devtools/pipeline.toml:rw
       - ./env.example/sim.env:/app/devtools/.env:ro
-      # broadcst logs & script logs
+      # broadcst logs, tx request objects & pipeline logs
       - ./out/broadcast:/app/devtools/broadcast:rw
-      - ./out/sim.log:/app/devtools/data/31337/sim.log
+      - ./out/tx-out:/app/devtools/data/31337/state/tx-out:rw
+      - ./out/sim.log:/app/devtools/data/31337/sim.log:rw
     environment:
       - PARTICIPANT_MNEMONIC=${PARTICIPANT_MNEMONIC}
     depends_on:
@@ -53,7 +55,7 @@ services:
         condition: service_healthy
 
   indexer:
-    image: ghcr.io/izcm/dmrkt-indexer:v0.1.0
+    image: ghcr.io/izcm/nft-indexer:latest
     ports:
       - "5000:5000" # http
       - "5001:5001" # websocket
@@ -71,12 +73,12 @@ services:
   frontend:
     image: frontend
     build:
-      context: https://github.com/izcm/dmrkt-frontend.git#v0.1.0
+      context: https://github.com/izcm/trading-terminal.git#v0.1.0
       args: # bundled at build time
-        NEXT_PUBLIC_MARKETPLACE_ADDR: ${MARKETPLACE_ADDR}
-        NEXT_PUBLIC_ANVIL_RPC_URL: http://${APP_HOST}:8545
-        NEXT_PUBLIC_INDEXER_API: http://${APP_HOST}:5000
-        NEXT_PUBLIC_INDEXER_WS: ws://${APP_HOST}:5001
+        ANVIL_MARKETPLACE: ${MARKETPLACE_ADDR} # remember chains.json
+        INDEXER_API: http://${APP_HOST}:5000
+        INDEXER_WS: ws://${APP_HOST}:5001
+        MODE: DEMO # show pipeline progress bars + etc. demo elements
     env_file: "./env.example/frontend.env"
     ports:
       - "3000:3000"

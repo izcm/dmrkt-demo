@@ -4,7 +4,7 @@ SHELL := /bin/bash
 include .env
 export
 
-# the user that runs make owns out/ + config/
+# the user that runs make owns out/ and config/ directories
 UID := $(shell id -u)
 export UID
 
@@ -19,11 +19,13 @@ APP_HOST ?= localhost
 export PROJECT_ROOT TOML MNEMONIC_JSON APP_HOST
 
 # pipeline window
-EPOCH_COUNT ?= 4
-EPOCH_SIZE ?= 604800 # seconds (7 days)
-
+EPOCH_COUNT = 4
+EPOCH_SIZE = 604800 # seconds (7 days)
 SECONDS_AGO = $(shell expr $(EPOCH_COUNT) \* $(EPOCH_SIZE))
 
+PARTICIPANT_SIZE = 20
+
+export PARTICIPANT_SIZE EPOCH_COUNT EPOCH_SIZE
 # ───────────────────────────────────────────────
 #   ENTRYPOINT
 # ───────────────────────────────────────────────
@@ -57,6 +59,7 @@ demo-prepare-local: ensure-dirs
 ensure-dirs:
 	@mkdir -p config/sim
 	@mkdir -p out/broadcast
+	@mkdir -p out/tx-out
 	@touch out/sim.log
 	@touch chains.json
 	@chmod -R 777 config/sim out/broadcast out/sim.log
