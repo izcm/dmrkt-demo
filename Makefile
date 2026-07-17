@@ -23,7 +23,9 @@ EPOCH_COUNT = 4
 EPOCH_SIZE = 604800 # seconds (7 days)
 SECONDS_AGO = $(shell expr $(EPOCH_COUNT) \* $(EPOCH_SIZE))
 
-PARTICIPANT_SIZE = 20
+# you can change the participant size, though the upper limit is not tested
+# will work up to 50 and probably more than that
+PARTICIPANT_SIZE = 10
 
 export PARTICIPANT_SIZE EPOCH_COUNT EPOCH_SIZE
 # ───────────────────────────────────────────────
@@ -70,7 +72,7 @@ ensure-dirs:
 
 check-ports:
 # todo: add 3000
-	@for port in 8545 5000 5001; do \
+	@for port in 8545 3000 5000 5001; do \
 			if ss -l sport = :$$port 2>/dev/null | grep -q LISTEN; then \
 			echo "❌ Port $$port is in use. Try 'make demo-reset'. If problem persists: kill $$(lsof -i :$$port -t)"; \
 			exit 1; \

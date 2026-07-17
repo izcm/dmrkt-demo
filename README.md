@@ -4,6 +4,8 @@ A Web3 ecosystem that forks Ethereum mainnet and simulates ~28 days of activity.
 
 Everything runs via Docker Compose 🐳
 
+Walkthrough of an earieer version can be seen [here](https://www.youtube.com/watch?v=YXtO_S2THTg).
+
 **Contents** — [How it works](#how-it-works) · [Getting started](#getting-started) · [Reset](#reset) · [Troubleshooting](#troubleshooting) · [What to improve](#what-to-improve)
 
 **Getting started** — [Prerequisites](#prerequisites) · [VM notes](#vm-notes) · [Environment](#environment) · [Run](#run)
@@ -136,18 +138,11 @@ The first startup takes longer — Docker pulls images and builds the frontend b
 | --------- | ------ | ------------- |
 | First run | ~8 min | ~10–12 min    |
 
-After that, expect another 5–7 minutes for the simulation pipeline to finish.
-
-Coffee break? ☕
-
-> [!NOTE]
-> At one stage the pipeline may appear to freeze — it hasn't.
->
-> The demo NFT collection does not support batch minting; minting 500 NFTs requires 500 separate transactions. Expect roughly a 2-3 minute pause mid-run.
+After that, expect another 3-5 minutes for the simulation pipeline to finish.
 
 ### Connect as a demo participant
 
-The simulation revolves around a fixed set of accounts — bootstrapped with ETH, WETH, and NFTs, and used as actors for every trade and order.
+The simulation revolves around a set of accounts — bootstrapped with ETH, WETH, and NFTs, and used as actors for every trade and order.
 
 We'll call them the demo participants 👨‍💻
 
@@ -269,6 +264,14 @@ Re-run:
 make demo-prepare
 ```
 
+### Issues with buy / sell NFT in `feed` tab
+
+When you try to do a buy, open the browser developer tools and look for the error: `RPC 0x7a69 Custom eth_sendRawTransaction: nonce too low`.
+
+If that error is present, the issue stems from a wallet issue. The cached nonce isn't synced to the latest running local chain, usually after restarting/re-forking anvil.
+
+Fix: reset the account in your wallet (MetaMask: Settings → Developer tools → "Delete activity and nonce data") so it re-queries the current nonce from the node.
+
 ---
 
 ## What to improve
@@ -292,8 +295,6 @@ That way, a user’s swords are just their balance of that item, rather than man
 The marketplace contract would also need to be extended to support ERC-1155 orders.
 
 ### Long pauses mid-run
-
-The pipeline hangs up for a long time during one specific stage — minting NFTs to the demo participants.
 
 If the demo collection followed a standard that supports batch minting, we could have one transaction per participant, instead of the current 500 transactions needed to mint each `tokenId`.
 

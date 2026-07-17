@@ -32,7 +32,7 @@ services:
 
   # DMRKT COMPONENTS
   sim:
-    image: ghcr.io/izcm/market-sim:latest
+    image: ghcr.io/izcm/market-sim:v0.2.0
     entrypoint: [
         "bash",
         "-c",
@@ -55,7 +55,7 @@ services:
         condition: service_healthy
 
   indexer:
-    image: ghcr.io/izcm/nft-indexer:latest
+    image: ghcr.io/izcm/nft-indexer:v0.2.0
     ports:
       - "5000:5000" # http
       - "5001:5001" # websocket
@@ -73,12 +73,12 @@ services:
   frontend:
     image: frontend
     build:
-      context: https://github.com/izcm/trading-terminal.git#v0.1.0
+      context: https://github.com/izcm/trading-terminal.git#v0.2.0
       args: # bundled at build time
-        ANVIL_MARKETPLACE: ${MARKETPLACE_ADDR} # remember chains.json
-        INDEXER_API: http://${APP_HOST}:5000
+        ANVIL_MARKETPLACE: ${MARKETPLACE_ADDR}
+        INDEXER_API_CLIENT: http://${APP_HOST}:5000/api
         INDEXER_WS: ws://${APP_HOST}:5001
-        MODE: DEMO # show pipeline progress bars + etc. demo elements
+        MODE: DEMO # show pipeline progress bars + etc. demo elements and chain config
     env_file: "./env.example/frontend.env"
     ports:
       - "3000:3000"
