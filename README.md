@@ -4,7 +4,7 @@ A Web3 ecosystem that forks Ethereum mainnet and simulates ~28 days of activity.
 
 Everything runs via Docker Compose 🐳
 
-Walkthrough of an earieer version can be seen [here](https://www.youtube.com/watch?v=YXtO_S2THTg).
+Walkthrough of an earieer version can be seen [here](https://www.youtube.com/watch?v=YXtO_S2THTg). The current pipeline runs quite differently, but the frontend part is almost identical.
 
 **Contents** — [How it works](#how-it-works) · [Getting started](#getting-started) · [Reset](#reset) · [Troubleshooting](#troubleshooting) · [What to improve](#what-to-improve)
 
@@ -36,9 +36,9 @@ Realtime updates are streamed via WebSocket.
 | [frontend][frontend] | `3000`             | Marketplace UI                              |
 | mongo                | `27017`            | MongoDB instance                            |
 
-[contracts]: https://github.com/izcm/dmrkt-contracts
-[indexer]: https://github.com/izcm/dmrkt-indexer
-[frontend]: https://github.com/izcm/dmrkt-frontend
+[contracts]: https://github.com/izcm/market-sim
+[indexer]: https://github.com/izcm/nft-indexer
+[frontend]: https://github.com/izcm/trading-terminal
 
 > [!NOTE]
 > Frontend README is not written yet, but will be shortly.
